@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+*.log
+
+# Virtual environments
+.venv/
+venv/
+.env/
+
+# Streamlit
+.streamlit/secrets.toml
+.streamlit/**/credentials.toml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.idea/
+.vscode/
+*.code-workspace
+
+# Coverage / test
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build / dist
+build/
+dist/
+*.spec
+
+# Docker
+*.bak
+
+# Local data
+*.sqlite3
+*.db
+
+# Node (if any future frontend assets)
+node_modules/
