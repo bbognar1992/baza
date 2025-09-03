@@ -1,5 +1,7 @@
 import streamlit as st
 import requests
+from datetime import datetime, timedelta
+import plotly.express as px
 
 st.set_page_config(page_title="Projects – ÉpítAI", layout="wide")
 
@@ -181,6 +183,47 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
 
     # Update overall project progress from checked tasks
     project["progress"] = int(total_done * 100 / total_tasks) if total_tasks else 0
+
+    # Gantt chart for phases based on project start/end
+    st.write("### Ütemterv")
+    try:
+        proj_start = datetime.fromisoformat(str(project.get("start", "2025-01-01")))
+        proj_end = datetime.fromisoformat(str(project.get("end", "2025-12-31")))
+        duration_days = max((proj_end - proj_start).days, 1)
+        num_phases = max(len(phases_def), 1)
+        slice_days = max(duration_days // num_phases, 1)
+        rows = []
+        current_start = proj_start
+        for pi, phase in enumerate(phases_def):
+            current_end = current_start + timedelta(days=slice_days)
+            # clamp to project end
+            if pi == num_phases - 1 or current_end > proj_end:
+                current_end = proj_end
+            phase_total = len(phase["tasks"]) or 1
+            phase_done = sum(1 for v in project["phases_checked"][pi] if v) if pi < len(project["phases_checked"]) else 0
+            completion = int(phase_done * 100 / phase_total)
+            rows.append({
+                "Fázis": f"{pi+1}. {phase['name']}",
+                "Kezdés": current_start,
+                "Befejezés": current_end,
+                "Készültség": completion,
+            })
+            current_start = current_end
+        if rows:
+            fig = px.timeline(
+                rows,
+                x_start="Kezdés",
+                x_end="Befejezés",
+                y="Fázis",
+                color="Készültség",
+                color_continuous_scale="Blues",
+                title="Fázisok ütemterve",
+            )
+            fig.update_yaxes(autorange="reversed")
+            fig.update_layout(height=320, margin=dict(l=10, r=10, t=40, b=10))
+            st.plotly_chart(fig, use_container_width=True)
+    except Exception:
+        pass
 
     st.write("### Helyszínek")
     locations = project.get("locations", [])
