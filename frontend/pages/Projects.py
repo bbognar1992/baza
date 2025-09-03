@@ -273,7 +273,15 @@ else:
     st.write("### Projektek")
 
     if st.session_state.projects:
-        tab_future, tab_active, tab_closed = st.tabs(["Jövőbeli", "Folyamatban lévő", "Lezárt"]) 
+        future_projects = [p for p in st.session_state.projects if p.get("status") in ("Tervezés alatt",)]
+        active_projects = [p for p in st.session_state.projects if p.get("status") in ("Folyamatban", "Késésben")]
+        closed_projects = [p for p in st.session_state.projects if p.get("status") in ("Lezárt",)]
+
+        tab_future, tab_active, tab_closed = st.tabs([
+            f"Jövőbeli ({len(future_projects)})",
+            f"Folyamatban lévő ({len(active_projects)})",
+            f"Lezárt ({len(closed_projects)})",
+        ])
 
         def render_list(projects_subset, subset_key_prefix=""):
             if not projects_subset:
@@ -300,10 +308,6 @@ else:
                     if original_idx is not None:
                         st.session_state.selected_project_index = original_idx
                         st.rerun()
-
-        future_projects = [p for p in st.session_state.projects if p.get("status") in ("Tervezés alatt",)]
-        active_projects = [p for p in st.session_state.projects if p.get("status") in ("Folyamatban", "Késésben")]
-        closed_projects = [p for p in st.session_state.projects if p.get("status") in ("Lezárt",)]
 
         with tab_future:
             render_list(future_projects, "future_")
