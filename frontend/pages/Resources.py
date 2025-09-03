@@ -11,6 +11,10 @@ if "resources" not in st.session_state:
     st.session_state.resources = [
         {"Típus": "Alkalmazott", "Név": "Kiss János", "Pozíció": "Kőműves"},
         {"Típus": "Alvállalkozó", "Név": "Acél Kft.", "Pozíció": "Vasszerkezetek"},
+        {"Típus": "Beszállító", "Név": "ÉpAnyag Zrt.", "Pozíció": "Beton, tégla"},
+        {"Típus": "Beszállító", "Név": "FaTrade Kft.", "Pozíció": "Faanyagok"},
+        {"Típus": "Beszállító", "Név": "VillTech Bt.", "Pozíció": "Villanyszerelési anyagok"},
+        {"Típus": "Beszállító", "Név": "GépGURU Kft.", "Pozíció": "Gépek, bérlés"},
     ]
 
 with st.expander("➕ Új alkalmazott"):
@@ -30,6 +34,16 @@ with st.expander("➕ Új alvállalkozó"):
             st.session_state.resources.append({"Típus": "Alvállalkozó", "Név": comp_name, "Pozíció": comp_role or "-"})
             st.success(f"Alvállalkozó hozzáadva: {comp_name}")
             st.rerun()
+
+with st.expander("➕ Új beszállító"):
+    sup_name = st.text_input("Cég neve", key="sup_name")
+    sup_scope = st.text_input("Termék / szakterület", key="sup_scope")
+    if st.button("Hozzáadás", key="add_supplier"):
+        if sup_name:
+            st.session_state.resources.append({"Típus": "Beszállító", "Név": sup_name, "Pozíció": sup_scope or "-"})
+            st.success(f"Beszállító hozzáadva: {sup_name}")
+            st.rerun()
+
 
 st.write("### Aktuális erőforrások")
 st.table(st.session_state.resources)
