@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import random
 from datetime import datetime, timedelta
 import plotly.express as px
 
@@ -100,11 +101,20 @@ if "resources" not in st.session_state:
         {"Típus": "Alvállalkozó", "Név": "Acél Kft.", "Pozíció": "Vasszerkezetek"},
     ]
 
+# Ensure default project types exist (used for seeding)
+if "project_types" not in st.session_state or not st.session_state.project_types:
+    st.session_state.project_types = [
+        {"Név": "Földszintes ház", "Leírás": "Egyszintes családi ház"},
+        {"Név": "Tetőteres ház", "Leírás": "Beépített tetőterű családi ház"},
+    ]
+
 # Seed a default project if none exist
 if not st.session_state.projects:
     member_names = [r.get("Név", "") for r in st.session_state.resources if r.get("Név")]
     _phases = get_default_phases()
     _phases_checked = [[False for _ in phase["tasks"]] for phase in _phases]
+    type_names = [pt.get("Név", "") for pt in st.session_state.project_types if pt.get("Név")]
+    seed_type = random.choice(type_names) if type_names else ""
     st.session_state.projects.append({
         "name": "Alap projekt",
         "start": "2025-01-01",
@@ -114,6 +124,7 @@ if not st.session_state.projects:
         "locations": ["Győr"],
         "progress": 25,
         "phases_checked": _phases_checked,
+        "type": seed_type,
     })
     # Add 25 more sample projects
     cities = ["Győr", "Budapest", "Debrecen", "Szeged", "Pécs", "Miskolc", "Veszprém"]
@@ -123,6 +134,7 @@ if not st.session_state.projects:
         end_month = ((i + 5) % 12) + 1
         city = cities[i % len(cities)]
         status = statuses[i % len(statuses)]
+        seed_type_i = random.choice(type_names) if type_names else ""
         st.session_state.projects.append({
             "name": f"Családi ház {i}",
             "start": f"2025-{start_month:02d}-01",
@@ -132,6 +144,7 @@ if not st.session_state.projects:
             "locations": [city],
             "progress": 100 if status == "Lezárt" else (i * 7) % 100,
             "phases_checked": [[False for _ in phase["tasks"]] for phase in _phases],
+            "type": seed_type_i,
         })
 
 selected_index = st.session_state.selected_project_index
@@ -142,13 +155,15 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
 
     st.subheader(project["name"])
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("Állapot", project.get("status", "Ismeretlen"))
     with col2:
         st.metric("Kezdés", project.get("start", "-"))
     with col3:
         st.metric("Befejezés", project.get("end", "-"))
+    with col4:
+        st.metric("Típus", project.get("type", "-"))
 
     st.write("### Haladás")
     st.progress(int(project.get("progress", 0)))
@@ -287,24 +302,26 @@ else:
             if not projects_subset:
                 st.info("Nincs megjeleníthető projekt.")
                 return
-            header = st.columns([3, 2, 2, 2, 2])
+            header = st.columns([3, 2, 2, 2, 2, 2])
             header[0].markdown("**Név**")
-            header[1].markdown("**Kezdés**")
-            header[2].markdown("**Befejezés**")
-            header[3].markdown("**Státusz**")
-            header[4].markdown("**Művelet**")
+            header[1].markdown("**Típus**")
+            header[2].markdown("**Kezdés**")
+            header[3].markdown("**Befejezés**")
+            header[4].markdown("**Státusz**")
+            header[5].markdown("**Művelet**")
             for idx, proj in enumerate(projects_subset):
-                cols = st.columns([3, 2, 2, 2, 2])
+                cols = st.columns([3, 2, 2, 2, 2, 2])
                 cols[0].markdown(f"**{proj['name']}**")
-                cols[1].write(proj["start"])
-                cols[2].write(proj["end"])
-                cols[3].write(proj["status"])
+                cols[1].write(proj.get("type", "-"))
+                cols[2].write(proj["start"])
+                cols[3].write(proj["end"])
+                cols[4].write(proj["status"])
                 # Find original index to open details
                 try:
                     original_idx = st.session_state.projects.index(proj)
                 except ValueError:
                     original_idx = None
-                if cols[4].button("Megnyitás", key=f"open_{subset_key_prefix}{idx}"):
+                if cols[5].button("Megnyitás", key=f"open_{subset_key_prefix}{idx}"):
                     if original_idx is not None:
                         st.session_state.selected_project_index = original_idx
                         st.rerun()
