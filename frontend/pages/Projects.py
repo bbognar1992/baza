@@ -80,6 +80,36 @@ if "resources" not in st.session_state:
         {"Típus": "Alvállalkozó", "Név": "Acél Kft.", "Pozíció": "Vasszerkezetek"},
     ]
 
+# Seed a default project if none exist
+if not st.session_state.projects:
+    member_names = [r.get("Név", "") for r in st.session_state.resources if r.get("Név")]
+    st.session_state.projects.append({
+        "name": "Alap projekt",
+        "start": "2025-01-01",
+        "end": "2025-12-31",
+        "status": "Folyamatban",
+        "members": member_names[:2],
+        "locations": ["Győr"],
+        "progress": 25,
+    })
+    # Add 25 more sample projects
+    cities = ["Győr", "Budapest", "Debrecen", "Szeged", "Pécs", "Miskolc", "Veszprém"]
+    statuses = ["Tervezés alatt", "Folyamatban", "Késésben", "Lezárt"]
+    for i in range(1, 26):
+        start_month = (i % 12) + 1
+        end_month = ((i + 5) % 12) + 1
+        city = cities[i % len(cities)]
+        status = statuses[i % len(statuses)]
+        st.session_state.projects.append({
+            "name": f"Családi ház {i}",
+            "start": f"2025-{start_month:02d}-01",
+            "end": f"2025-{end_month:02d}-28",
+            "status": status,
+            "members": member_names[:2],
+            "locations": [city],
+            "progress": 100 if status == "Lezárt" else (i * 7) % 100,
+        })
+
 selected_index = st.session_state.selected_project_index
 
 # If a project is selected, show its details view
