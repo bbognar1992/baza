@@ -26,50 +26,6 @@ def geocode_location(name: str):
         pass
     return None
 
-
-def get_default_phases_markdown() -> str:
-    return (
-        "1. Szerződéskötés\n"
-        "   - Ügyfél igényfelmérés\n"
-        "   - Ajánlatadás\n"
-        "   - Szerződés megírása, kiküldése\n"
-        "   - Engedélyek, biztosítások\n"
-        "     - [AI] Szerződés sablonok, automatikus kitöltés\n"
-        "\n"
-        "2. Tervezés\n"
-        "   - Építészeti tervek\n"
-        "   - Statikai, gépészeti, elektromos tervek\n"
-        "   - Engedélyek beadása\n"
-        "   - Költségvetés, ütemterv\n"
-        "\n"
-        "3. Anyag- és erőforrás-tervezés\n"
-        "   - Anyagok listázása\n"
-        "   - Ajánlatkérések kiküldése\n"
-        "   - Beszállítók kiválasztása\n"
-        "   - Munkaerő és alvállalkozók ütemezése\n"
-        "     - [AI] Ajánlatkérés e-mailben + válaszok feldolgozása\n"
-        "\n"
-        "4. Kivitelezés\n"
-        "   - Alapozás, földmunka\n"
-        "   - Falazat, szerkezetépítés\n"
-        "   - Tető, nyílászárók\n"
-        "   - Gépészet, villanyszerelés\n"
-        "   - Vakolás, burkolás, festés\n"
-        "   - [AI] Erőforrás ütemezés (időjárás + ember + eszköz)\n"
-        "\n"
-        "5. Műszaki átadás\n"
-        "   - Ellenőrzés, műszaki vezető\n"
-        "   - Hibajegyzék készítése\n"
-        "   - Használatbavételi engedély\n"
-        "   - [AI] Checklist + hibajegyzék automatikus generálás\n"
-        "\n"
-        "6. Projekt lezárás\n"
-        "   - Pénzügyi elszámolás\n"
-        "   - Kulcsátadás\n"
-        "   - Garanciális időszak indul\n"
-    )
-
-
 def get_default_phases():
     return [
         {
@@ -145,6 +101,8 @@ if "resources" not in st.session_state:
 # Seed a default project if none exist
 if not st.session_state.projects:
     member_names = [r.get("Név", "") for r in st.session_state.resources if r.get("Név")]
+    _phases = get_default_phases()
+    _phases_checked = [[False for _ in phase["tasks"]] for phase in _phases]
     st.session_state.projects.append({
         "name": "Alap projekt",
         "start": "2025-01-01",
@@ -153,6 +111,7 @@ if not st.session_state.projects:
         "members": member_names[:2],
         "locations": ["Győr"],
         "progress": 25,
+        "phases_checked": _phases_checked,
     })
     # Add 25 more sample projects
     cities = ["Győr", "Budapest", "Debrecen", "Szeged", "Pécs", "Miskolc", "Veszprém"]
@@ -170,6 +129,7 @@ if not st.session_state.projects:
             "members": member_names[:2],
             "locations": [city],
             "progress": 100 if status == "Lezárt" else (i * 7) % 100,
+            "phases_checked": [[False for _ in phase["tasks"]] for phase in _phases],
         })
 
 selected_index = st.session_state.selected_project_index
@@ -195,18 +155,29 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
     st.write(", ".join(project.get("members", [])) or "N/A")
 
     st.write("### Fázisok")
-    phases = get_default_phases()
-    proj_key_prefix = f"proj_{selected_index}_phase_"
-    for pi, phase in enumerate(phases):
+    phases_def = get_default_phases()
+    # Ensure project has phases_checked field (for legacy items)
+    if "phases_checked" not in project or not project["phases_checked"]:
+        project["phases_checked"] = [[False for _ in p["tasks"]] for p in phases_def]
+
+    total_tasks = 0
+    total_done = 0
+    for pi, phase in enumerate(phases_def):
         with st.expander(f"{pi+1}. {phase['name']}"):
             for ti, task in enumerate(phase["tasks"]):
-                key = f"{proj_key_prefix}{pi}_task_{ti}"
-                default_val = st.session_state.get(key, False)
-                checked = st.checkbox(task, value=default_val, key=key)
-            # Optional: show simple completion ratio per phase
-            total = len(phase["tasks"])
-            done = sum(1 for ti in range(total) if st.session_state.get(f"{proj_key_prefix}{pi}_task_{ti}", False))
-            st.progress(int(done * 100 / total) if total else 0)
+                total_tasks += 1
+                current = project["phases_checked"][pi][ti]
+                new_val = st.checkbox(task, value=current, key=f"proj_{selected_index}_{pi}_{ti}")
+                project["phases_checked"][pi][ti] = new_val
+                if new_val:
+                    total_done += 1
+            # per-phase progress
+            phase_total = len(phase["tasks"])
+            phase_done = sum(1 for v in project["phases_checked"][pi] if v)
+            st.progress(int(phase_done * 100 / phase_total) if phase_total else 0)
+
+    # Update overall project progress from checked tasks
+    project["progress"] = int(total_done * 100 / total_tasks) if total_tasks else 0
 
     st.write("### Helyszínek")
     locations = project.get("locations", [])
