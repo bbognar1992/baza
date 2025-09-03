@@ -69,6 +69,68 @@ def get_default_phases_markdown() -> str:
         "   - Garanciális időszak indul\n"
     )
 
+
+def get_default_phases():
+    return [
+        {
+            "name": "Szerződéskötés",
+            "tasks": [
+                "Ügyfél igényfelmérés",
+                "Ajánlatadás",
+                "Szerződés megírása, kiküldése",
+                "Engedélyek, biztosítások",
+                "[AI] Szerződés sablonok, automatikus kitöltés",
+            ],
+        },
+        {
+            "name": "Tervezés",
+            "tasks": [
+                "Építészeti tervek",
+                "Statikai, gépészeti, elektromos tervek",
+                "Engedélyek beadása",
+                "Költségvetés, ütemterv",
+            ],
+        },
+        {
+            "name": "Anyag- és erőforrás-tervezés",
+            "tasks": [
+                "Anyagok listázása",
+                "Ajánlatkérések kiküldése",
+                "Beszállítók kiválasztása",
+                "Munkaerő és alvállalkozók ütemezése",
+                "[AI] Ajánlatkérés e-mailben + válaszok feldolgozása",
+            ],
+        },
+        {
+            "name": "Kivitelezés",
+            "tasks": [
+                "Alapozás, földmunka",
+                "Falazat, szerkezetépítés",
+                "Tető, nyílászárók",
+                "Gépészet, villanyszerelés",
+                "Vakolás, burkolás, festés",
+                "[AI] Erőforrás ütemezés (időjárás + ember + eszköz)",
+            ],
+        },
+        {
+            "name": "Műszaki átadás",
+            "tasks": [
+                "Ellenőrzés, műszaki vezető",
+                "Hibajegyzék készítése",
+                "Használatbavételi engedély",
+                "[AI] Checklist + hibajegyzék automatikus generálás",
+            ],
+        },
+        {
+            "name": "Projekt lezárás",
+            "tasks": [
+                "Pénzügyi elszámolás",
+                "Kulcsátadás",
+                "Garanciális időszak indul",
+            ],
+        },
+    ]
+
 # Simple in-memory store in session
 if "projects" not in st.session_state:
     st.session_state.projects = []
@@ -133,7 +195,18 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
     st.write(", ".join(project.get("members", [])) or "N/A")
 
     st.write("### Fázisok")
-    st.markdown(get_default_phases_markdown())
+    phases = get_default_phases()
+    proj_key_prefix = f"proj_{selected_index}_phase_"
+    for pi, phase in enumerate(phases):
+        with st.expander(f"{pi+1}. {phase['name']}"):
+            for ti, task in enumerate(phase["tasks"]):
+                key = f"{proj_key_prefix}{pi}_task_{ti}"
+                default_val = st.session_state.get(key, False)
+                checked = st.checkbox(task, value=default_val, key=key)
+            # Optional: show simple completion ratio per phase
+            total = len(phase["tasks"])
+            done = sum(1 for ti in range(total) if st.session_state.get(f"{proj_key_prefix}{pi}_task_{ti}", False))
+            st.progress(int(done * 100 / total) if total else 0)
 
     st.write("### Helyszínek")
     locations = project.get("locations", [])
@@ -146,7 +219,7 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
         if coords:
             points.append({"lat": coords[0], "lon": coords[1]})
     if points:
-        st.map(points)
+        st.map(points, zoom=12)
 
     if st.button("⬅️ Vissza a listához"):
         st.session_state.selected_project_index = None
