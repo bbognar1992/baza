@@ -150,6 +150,7 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
 
     st.write("### Haladás")
     st.progress(int(project.get("progress", 0)))
+    st.caption(f"{int(project.get('progress', 0))}%")
 
     st.write("### Dolgozók a projekten")
     st.write(", ".join(project.get("members", [])) or "N/A")
@@ -174,7 +175,9 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
             # per-phase progress
             phase_total = len(phase["tasks"])
             phase_done = sum(1 for v in project["phases_checked"][pi] if v)
-            st.progress(int(phase_done * 100 / phase_total) if phase_total else 0)
+            _pct = int(phase_done * 100 / phase_total) if phase_total else 0
+            st.progress(_pct)
+            st.caption(f"{_pct}% ({phase_done}/{phase_total})")
 
     # Update overall project progress from checked tasks
     project["progress"] = int(total_done * 100 / total_tasks) if total_tasks else 0
