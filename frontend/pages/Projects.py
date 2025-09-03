@@ -244,30 +244,31 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
 
 # Otherwise show creation form and list
 else:
-    with st.form("create_project"):
-        st.subheader("Új projekt létrehozása")
-        name = st.text_input("Projekt neve")
-        start = st.date_input("Kezdés dátuma")
-        end = st.date_input("Befejezés dátuma")
-        locations_input = st.text_input("Helyszínek (vesszővel elválasztva)")
-        resource_names = [r.get("Név", "") for r in st.session_state.resources if r.get("Név")]
-        selected_members = st.multiselect("Projekt tagok", options=resource_names, default=[])
-        submitted = st.form_submit_button("Projekt hozzáadása")
-        if submitted and name:
-            locations_list = [
-                part.strip() for part in (locations_input or "").split(",") if part.strip()
-            ] or ["Budapest"]
-            st.session_state.projects.append({
-                "name": name,
-                "start": str(start),
-                "end": str(end),
-                "status": "Folyamatban",
-                "members": selected_members,
-                "locations": locations_list,
-                "progress": 35
-            })
-            st.success(f"Projekt létrehozva: {name}")
-            st.rerun()
+    with st.expander("➕ Új projekt", expanded=False):
+        with st.form("create_project"):
+            st.subheader("Új projekt létrehozása")
+            name = st.text_input("Projekt neve")
+            start = st.date_input("Kezdés dátuma")
+            end = st.date_input("Befejezés dátuma")
+            locations_input = st.text_input("Helyszínek (vesszővel elválasztva)")
+            resource_names = [r.get("Név", "") for r in st.session_state.resources if r.get("Név")]
+            selected_members = st.multiselect("Projekt tagok", options=resource_names, default=[])
+            submitted = st.form_submit_button("Projekt hozzáadása")
+            if submitted and name:
+                locations_list = [
+                    part.strip() for part in (locations_input or "").split(",") if part.strip()
+                ] or ["Budapest"]
+                st.session_state.projects.append({
+                    "name": name,
+                    "start": str(start),
+                    "end": str(end),
+                    "status": "Folyamatban",
+                    "members": selected_members,
+                    "locations": locations_list,
+                    "progress": 35
+                })
+                st.success(f"Projekt létrehozva: {name}")
+                st.rerun()
 
     st.write("### Projektek")
 
