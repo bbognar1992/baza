@@ -226,24 +226,46 @@ else:
             st.success(f"Projekt létrehozva: {name}")
             st.rerun()
 
-    st.write("### Folyamatban lévő projektek")
+    st.write("### Projektek")
 
     if st.session_state.projects:
-        header = st.columns([3, 2, 2, 2, 2])
-        header[0].markdown("**Név**")
-        header[1].markdown("**Kezdés**")
-        header[2].markdown("**Befejezés**")
-        header[3].markdown("**Státusz**")
-        header[4].markdown("**Művelet**")
+        tab_future, tab_active, tab_closed = st.tabs(["Jövőbeli", "Folyamatban lévő", "Lezárt"]) 
 
-        for idx, proj in enumerate(st.session_state.projects):
-            cols = st.columns([3, 2, 2, 2, 2])
-            cols[0].markdown(f"**{proj['name']}**")
-            cols[1].write(proj["start"])
-            cols[2].write(proj["end"])
-            cols[3].write(proj["status"])
-            if cols[4].button("Megnyitás", key=f"open_{idx}"):
-                st.session_state.selected_project_index = idx
-                st.rerun()
+        def render_list(projects_subset, subset_key_prefix=""):
+            if not projects_subset:
+                st.info("Nincs megjeleníthető projekt.")
+                return
+            header = st.columns([3, 2, 2, 2, 2])
+            header[0].markdown("**Név**")
+            header[1].markdown("**Kezdés**")
+            header[2].markdown("**Befejezés**")
+            header[3].markdown("**Státusz**")
+            header[4].markdown("**Művelet**")
+            for idx, proj in enumerate(projects_subset):
+                cols = st.columns([3, 2, 2, 2, 2])
+                cols[0].markdown(f"**{proj['name']}**")
+                cols[1].write(proj["start"])
+                cols[2].write(proj["end"])
+                cols[3].write(proj["status"])
+                # Find original index to open details
+                try:
+                    original_idx = st.session_state.projects.index(proj)
+                except ValueError:
+                    original_idx = None
+                if cols[4].button("Megnyitás", key=f"open_{subset_key_prefix}{idx}"):
+                    if original_idx is not None:
+                        st.session_state.selected_project_index = original_idx
+                        st.rerun()
+
+        future_projects = [p for p in st.session_state.projects if p.get("status") in ("Tervezés alatt",)]
+        active_projects = [p for p in st.session_state.projects if p.get("status") in ("Folyamatban", "Késésben")]
+        closed_projects = [p for p in st.session_state.projects if p.get("status") in ("Lezárt",)]
+
+        with tab_future:
+            render_list(future_projects, "future_")
+        with tab_active:
+            render_list(active_projects, "active_")
+        with tab_closed:
+            render_list(closed_projects, "closed_")
     else:
         st.info("Még nincs projekt. Hozz létre egyet fentebb.")
