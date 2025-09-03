@@ -46,4 +46,32 @@ with st.expander("➕ Új beszállító"):
 
 
 st.write("### Aktuális erőforrások")
-st.table(st.session_state.resources)
+
+# Split resources by type
+emps = [r for r in st.session_state.resources if r.get("Típus") == "Alkalmazott"]
+subs = [r for r in st.session_state.resources if r.get("Típus") == "Alvállalkozó"]
+sups = [r for r in st.session_state.resources if r.get("Típus") == "Beszállító"]
+
+tab1, tab2, tab3 = st.tabs([
+    f"Alkalmazott ({len(emps)})",
+    f"Alvállalkozó ({len(subs)})",
+    f"Beszállító ({len(sups)})",
+])
+
+with tab1:
+    if emps:
+        st.table(emps)
+    else:
+        st.info("Nincs alkalmazott.")
+
+with tab2:
+    if subs:
+        st.table(subs)
+    else:
+        st.info("Nincs alvállalkozó.")
+
+with tab3:
+    if sups:
+        st.table(sups)
+    else:
+        st.info("Nincs beszállító.")
