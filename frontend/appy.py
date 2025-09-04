@@ -9,6 +9,7 @@ pages = {
     ],
     "Projektmenedzsment": [
         st.Page("pages/Projects.py", title="Projektek"),
+        st.Page("pages/ClientView.py", title="Ügyfél Nézet"),
         st.Page("pages/IdojarasUtemezes.py", title="Időjárás Ütemezés"),
         st.Page("pages/Resources.py", title="Erőforrások"),
     ],
