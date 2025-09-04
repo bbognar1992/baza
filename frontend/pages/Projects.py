@@ -74,13 +74,19 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
                 # Handle both old string format and new object format
                 if isinstance(task, str):
                     task_name = task
+                    task_duration = "N/A"
                 else:
                     task_name = task.get("name", "Unknown task")
                     task_profession = task.get("profession", "")
+                    task_duration = task.get("duration_days", "N/A")
+                    if isinstance(task_duration, int):
+                        task_duration = f"{task_duration} nap"
                     if task_profession:
                         task_name = f"{task_name} (🔧 {task_profession})"
                 
-                new_val = st.checkbox(task_name, value=current, key=f"proj_{selected_index}_{pi}_{ti}")
+                # Display task with duration
+                task_display = f"{task_name} ⏱️ {task_duration}"
+                new_val = st.checkbox(task_display, value=current, key=f"proj_{selected_index}_{pi}_{ti}")
                 project["phases_checked"][pi][ti] = new_val
                 if new_val:
                     total_done += 1
@@ -89,7 +95,7 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
             phase_done = sum(1 for v in project["phases_checked"][pi] if v)
             _pct = int(phase_done * 100 / phase_total) if phase_total else 0
             st.progress(_pct)
-            st.caption(f"{_pct}% ({phase_done}/{phase_total})")
+            st.caption(f"{_pct}% ({phase_done}/{phase_total}) - Teljes idő: {phase.get('total_duration_days', 0)} nap")
 
     # Update overall project progress from checked tasks
     project["progress"] = int(total_done * 100 / total_tasks) if total_tasks else 0
@@ -105,7 +111,9 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
         rows = []
         current_start = proj_start
         for pi, phase in enumerate(phases_def):
-            current_end = current_start + timedelta(days=slice_days)
+            # Use actual phase duration instead of equal slices
+            phase_duration = phase.get('total_duration_days', slice_days)
+            current_end = current_start + timedelta(days=phase_duration)
             # clamp to project end
             if pi == num_phases - 1 or current_end > proj_end:
                 current_end = proj_end
@@ -113,7 +121,7 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
             phase_done = sum(1 for v in project["phases_checked"][pi] if v) if pi < len(project["phases_checked"]) else 0
             completion = int(phase_done * 100 / phase_total)
             rows.append({
-                "Fázis": f"{pi+1}. {phase['name']}",
+                "Fázis": f"{pi+1}. {phase['name']} ({phase_duration} nap)",
                 "Kezdés": current_start,
                 "Befejezés": current_end,
                 "Készültség": completion,

@@ -38,62 +38,87 @@ def get_default_phases():
         {
             "name": "Szerződéskötés",
             "tasks": [
-                {"name": "Ügyfél igényfelmérés", "profession": "Építésvezető"},
-                {"name": "Ajánlatadás", "profession": "Építésvezető"},
-                {"name": "Szerződés megírása, kiküldése", "profession": "Építésvezető"},
-                {"name": "Engedélyek, biztosítások", "profession": "Építésvezető"},
-                {"name": "[AI] Szerződés sablonok, automatikus kitöltés", "profession": ""},
+                {"name": "Ügyfél igényfelmérés", "profession": "Építésvezető", "duration_days": 3},
+                {"name": "Ajánlatadás", "profession": "Építésvezető", "duration_days": 5},
+                {"name": "Szerződés megírása, kiküldése", "profession": "Építésvezető", "duration_days": 7},
+                {"name": "Engedélyek, biztosítások", "profession": "Építésvezető", "duration_days": 10},
+                {"name": "[AI] Szerződés sablonok, automatikus kitöltés", "profession": "", "duration_days": 2},
             ],
+            "total_duration_days": 27,
         },
         {
             "name": "Tervezés",
             "tasks": [
-                {"name": "Építészeti tervek", "profession": "Műszaki vezető"},
-                {"name": "Statikai, gépészeti, elektromos tervek", "profession": "Műszaki vezető"},
-                {"name": "Engedélyek beadása", "profession": "Építésvezető"},
-                {"name": "Költségvetés, ütemterv", "profession": "Műszaki vezető"},
+                {"name": "Építészeti tervek", "profession": "Műszaki vezető", "duration_days": 15},
+                {"name": "Statikai, gépészeti, elektromos tervek", "profession": "Műszaki vezető", "duration_days": 20},
+                {"name": "Engedélyek beadása", "profession": "Építésvezető", "duration_days": 30},
+                {"name": "Költségvetés, ütemterv", "profession": "Műszaki vezető", "duration_days": 10},
             ],
+            "total_duration_days": 75,
         },
         {
             "name": "Anyag- és erőforrás-tervezés",
             "tasks": [
-                {"name": "Anyagok listázása", "profession": "Műszaki vezető"},
-                {"name": "Ajánlatkérések kiküldése", "profession": "Műszaki vezető"},
-                {"name": "Beszállítók kiválasztása", "profession": "Műszaki vezető"},
-                {"name": "Munkaerő és alvállalkozók ütemezése", "profession": "Műszaki vezető"},
-                {"name": "[AI] Ajánlatkérés e-mailben + válaszok feldolgozása", "profession": ""},
+                {"name": "Anyagok listázása", "profession": "Műszaki vezető", "duration_days": 5},
+                {"name": "Ajánlatkérések kiküldése", "profession": "Műszaki vezető", "duration_days": 7},
+                {"name": "Beszállítók kiválasztása", "profession": "Műszaki vezető", "duration_days": 10},
+                {"name": "Munkaerő és alvállalkozók ütemezése", "profession": "Műszaki vezető", "duration_days": 8},
+                {"name": "[AI] Ajánlatkérés e-mailben + válaszok feldolgozása", "profession": "", "duration_days": 3},
             ],
+            "total_duration_days": 33,
         },
         {
             "name": "Kivitelezés",
             "tasks": [
-                {"name": "Alapozás, földmunka", "profession": "Kőműves"},
-                {"name": "Falazat, szerkezetépítés", "profession": "Kőműves"},
-                {"name": "Tető, nyílászárók", "profession": "Ács"},
-                {"name": "Gépészet, villanyszerelés", "profession": "Víz-gáz-fűtésszerelő"},
-                {"name": "Villanyszerelés", "profession": "Villanyszerelő"},
-                {"name": "Vakolás, burkolás, festés", "profession": "Burkoló"},
-                {"name": "[AI] Erőforrás ütemezés (időjárás + ember + eszköz)", "profession": ""},
+                {"name": "Alapozás, földmunka", "profession": "Kőműves", "duration_days": 25},
+                {"name": "Falazat, szerkezetépítés", "profession": "Kőműves", "duration_days": 40},
+                {"name": "Tető, nyílászárók", "profession": "Ács", "duration_days": 20},
+                {"name": "Gépészet, villanyszerelés", "profession": "Víz-gáz-fűtésszerelő", "duration_days": 30},
+                {"name": "Villanyszerelés", "profession": "Villanyszerelő", "duration_days": 25},
+                {"name": "Vakolás, burkolás, festés", "profession": "Burkoló", "duration_days": 35},
+                {"name": "[AI] Erőforrás ütemezés (időjárás + ember + eszköz)", "profession": "", "duration_days": 5},
             ],
+            "total_duration_days": 180,
         },
         {
             "name": "Műszaki átadás",
             "tasks": [
-                {"name": "Ellenőrzés, műszaki vezető", "profession": "Műszaki vezető"},
-                {"name": "Hibajegyzék készítése", "profession": "Műszaki vezető"},
-                {"name": "Használatbavételi engedély", "profession": "Építésvezető"},
-                {"name": "[AI] Checklist + hibajegyzék automatikus generálás", "profession": ""},
+                {"name": "Ellenőrzés, műszaki vezető", "profession": "Műszaki vezető", "duration_days": 7},
+                {"name": "Hibajegyzék készítése", "profession": "Műszaki vezető", "duration_days": 5},
+                {"name": "Használatbavételi engedély", "profession": "Építésvezető", "duration_days": 10},
+                {"name": "[AI] Checklist + hibajegyzék automatikus generálás", "profession": "", "duration_days": 2},
             ],
+            "total_duration_days": 24,
         },
         {
             "name": "Projekt lezárás",
             "tasks": [
-                {"name": "Pénzügyi elszámolás", "profession": "Építésvezető"},
-                {"name": "Kulcsátadás", "profession": "Építésvezető"},
-                {"name": "Garanciális időszak indul", "profession": "Műszaki vezető"},
+                {"name": "Pénzügyi elszámolás", "profession": "Építésvezető", "duration_days": 5},
+                {"name": "Kulcsátadás", "profession": "Építésvezető", "duration_days": 1},
+                {"name": "Garanciális időszak indul", "profession": "Műszaki vezető", "duration_days": 1},
             ],
+            "total_duration_days": 7,
         },
     ]
+
+
+def update_phase_durations(phases):
+    """Update total duration for each phase based on task durations"""
+    for phase in phases:
+        if "tasks" in phase:
+            total_duration = sum(task.get("duration_days", 1) for task in phase["tasks"])
+            phase["total_duration_days"] = total_duration
+    return phases
+
+
+def calculate_total_project_duration(phases):
+    """Calculate total duration for entire project"""
+    total_duration = 0
+    for phase in phases:
+        if "tasks" in phase:
+            phase_duration = sum(task.get("duration_days", 1) for task in phase["tasks"])
+            total_duration += phase_duration
+    return total_duration
 
 
 def ensure_base_session_state(st):

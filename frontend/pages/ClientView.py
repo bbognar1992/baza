@@ -45,6 +45,15 @@ st.markdown("""
     background: #fff3cd;
     border-left: 4px solid #ffc107;
 }
+.phase-success {
+    border-left-color: #28a745 !important;
+}
+.phase-warning {
+    border-left-color: #ffc107 !important;
+}
+.phase-info {
+    border-left-color: #17a2b8 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -161,14 +170,24 @@ if selected_project:
         phase_done = sum(1 for v in selected_project["phases_checked"][current_phase_index] if v) if current_phase_index < len(selected_project["phases_checked"]) else 0
         phase_progress = int(phase_done * 100 / phase_total) if phase_total else 0
         
+        # Calculate current phase days for time-based progress
+        current_phase_days = 0
+        if phase_total > 0:
+            completion_ratio = phase_done / phase_total
+            current_phase_days = int(phase.get('total_duration_days', 0) * completion_ratio)
+        
         st.markdown(f"""
         <div class="phase-card">
             <h4>🎯 Aktuális fázis: {current_phase_index+1}. {phase['name']}</h4>
             <p><strong>Haladás:</strong> {phase_done}/{phase_total} feladat kész</p>
+            <p><strong>Teljes időtartam:</strong> {phase.get('total_duration_days', 0)} nap</p>
+            <p><strong>Időbeli haladás:</strong> {current_phase_days} / {phase.get('total_duration_days', 0)} nap</p>
         """, unsafe_allow_html=True)
         
-        st.progress(phase_progress / 100)
-        st.markdown(f"<p style='text-align: center;'><strong>{phase_progress}%</strong></p>", unsafe_allow_html=True)
+        # Time-based progress bar
+        time_progress = int(current_phase_days * 100 / phase.get('total_duration_days', 1)) if phase.get('total_duration_days', 1) > 0 else 0
+        st.progress(time_progress / 100)
+        st.markdown(f"<p style='text-align: center; color: #666;'><strong>Időbeli haladás: {time_progress}%</strong></p>", unsafe_allow_html=True)
         
         # Show tasks in a simplified way
         for ti, task in enumerate(phase["tasks"]):
@@ -177,30 +196,127 @@ if selected_project:
             # Handle both old string format and new object format
             if isinstance(task, str):
                 task_name = task
+                task_duration = "N/A"
             else:
                 task_name = task.get("name", "Unknown task")
+                task_duration = task.get("duration_days", "N/A")
+                if isinstance(task_duration, int):
+                    task_duration = f"{task_duration} nap"
             
             status_icon = "✅" if is_completed else "⏳"
             css_class = "task-completed" if is_completed else "task-pending"
             
             st.markdown(f"""
             <div class="task-item {css_class}">
-                {status_icon} {task_name}
+                {status_icon} {task_name} <span style="float: right; color: #666; font-size: 0.9em;">⏱️ {task_duration}</span>
             </div>
             """, unsafe_allow_html=True)
-        
-        st.markdown("</div>", unsafe_allow_html=True)
     
-    # Show next phase if available
-    next_phase_index = current_phase_index + 1
-    if next_phase_index < len(phases_def):
-        next_phase = phases_def[next_phase_index]
-        
+    # Show all phases summary
+    st.markdown("### 📋 Összes fázis áttekintése")
+    phases_summary_cols = st.columns(4)
+    
+    for pi, phase in enumerate(phases_def):
+        col_index = pi % 4
+        with phases_summary_cols[col_index]:
+            phase_total = len(phase["tasks"])
+            phase_done = sum(1 for v in selected_project["phases_checked"][pi] if v) if pi < len(selected_project["phases_checked"]) else 0
+            phase_progress = int(phase_done * 100 / phase_total) if phase_total else 0
+            
+            # Determine phase status
+            if pi < current_phase_index:
+                status_icon = "✅"
+                status_class = "phase-success"
+            elif pi == current_phase_index:
+                status_icon = "🔄"
+                status_class = "phase-warning"
+            else:
+                status_icon = "⏳"
+                status_class = "phase-info"
+            
+            st.markdown(f"""
+            <div class="phase-card {status_class}">
+                <h5>{status_icon} {phase['name']}</h5>
+                <p><strong>Feladatok:</strong> {phase_done}/{phase_total}</p>
+                <p><strong>Időtartam:</strong> {phase.get('total_duration_days', 0)} nap</p>
+                <p><strong>Haladás:</strong> {phase_progress}%</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # Project timeline summary
+    st.markdown("### ⏱️ Projekt időtartam összefoglalás")
+    
+    # Calculate total project duration and remaining time
+    total_project_days = sum(phase.get('total_duration_days', 0) for phase in phases_def)
+    completed_phases_days = 0
+    current_phase_days = 0
+    
+    for pi, phase in enumerate(phases_def):
+        if pi < current_phase_index:
+            # Completed phases
+            completed_phases_days += phase.get('total_duration_days', 0)
+        elif pi == current_phase_index:
+            # Current phase - calculate partial completion
+            phase_total = len(phase["tasks"])
+            phase_done = sum(1 for v in selected_project["phases_checked"][pi] if v) if pi < len(selected_project["phases_checked"]) else 0
+            if phase_total > 0:
+                completion_ratio = phase_done / phase_total
+                current_phase_days = int(phase.get('total_duration_days', 0) * completion_ratio)
+                completed_phases_days += current_phase_days
+    
+    remaining_days = total_project_days - completed_phases_days
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
         st.markdown(f"""
-        <div class="phase-card">
-            <h4>⏭️ Következő fázis: {next_phase_index+1}. {next_phase['name']}</h4>
+        <div class="client-metric">
+            <h4>📊 Teljes projekt</h4>
+            <p><strong>{total_project_days} nap</strong></p>
         </div>
         """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class="client-metric">
+            <h4>✅ Teljesített</h4>
+            <p><strong>{completed_phases_days} nap</strong></p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown(f"""
+        <div class="client-metric">
+            <h4>⏳ Hátralévő</h4>
+            <p><strong>{remaining_days} nap</strong></p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Estimated completion information
+    try:
+        project_start = datetime.fromisoformat(str(selected_project.get("start", "2025-01-01")))
+        estimated_completion = project_start + timedelta(days=completed_phases_days + remaining_days)
+        current_date = datetime.now()
+        if current_date < estimated_completion:
+            days_until_completion = (estimated_completion - current_date).days
+        else:
+            days_until_completion = 0
+    except:
+        estimated_completion = None
+        days_until_completion = None
+    
+    if estimated_completion and days_until_completion is not None:
+        st.markdown("### 📅 Becsült befejezés")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.metric("Becsült befejezés", estimated_completion.strftime("%Y-%m-%d"))
+        
+        with col2:
+            if days_until_completion > 0:
+                st.metric("Hátralévő napok", f"{days_until_completion} nap")
+            else:
+                st.metric("Státusz", "Befejezve")
 
     # Simplified timeline chart
     st.markdown("### 📅 Ütemterv")
@@ -214,7 +330,9 @@ if selected_project:
         rows = []
         current_start = proj_start
         for pi, phase in enumerate(phases_def):
-            current_end = current_start + timedelta(days=slice_days)
+            # Use actual phase duration instead of equal slices
+            phase_duration = phase.get('total_duration_days', slice_days)
+            current_end = current_start + timedelta(days=phase_duration)
             if pi == num_phases - 1 or current_end > proj_end:
                 current_end = proj_end
             
@@ -223,7 +341,7 @@ if selected_project:
             completion = int(phase_done * 100 / phase_total)
             
             rows.append({
-                "Fázis": f"{pi+1}. {phase['name']}",
+                "Fázis": f"{pi+1}. {phase['name']} ({phase_duration} nap)",
                 "Kezdés": current_start,
                 "Befejezés": current_end,
                 "Készültség": completion,
