@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from datetime import datetime, timedelta
 import plotly.express as px
-from default_data import get_default_phases, ensure_base_session_state, seed_projects_if_empty
+from default_data import get_default_phases, ensure_base_session_state
 
 st.set_page_config(page_title="Projects – ÉpítAI", layout="wide")
 
@@ -30,8 +30,6 @@ def geocode_location(name: str):
     return None
 
 ensure_base_session_state(st)
-
-seed_projects_if_empty(st)
 
 
 selected_index = st.session_state.selected_project_index

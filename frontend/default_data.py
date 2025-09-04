@@ -89,6 +89,7 @@ def ensure_base_session_state(st):
         st.session_state.project_types = get_default_project_types()
     if "projects" not in st.session_state:
         st.session_state.projects = []
+        seed_projects_if_empty(st)
     if "selected_project_index" not in st.session_state:
         st.session_state.selected_project_index = None
     if "selected_project_type_index" not in st.session_state:
@@ -96,8 +97,6 @@ def ensure_base_session_state(st):
 
 
 def seed_projects_if_empty(st):
-    if st.session_state.projects:
-        return
     member_names = [r.get("Név", "") for r in st.session_state.resources if r.get("Név")]
     phases = get_default_phases()
     phases_checked_template = [[False for _ in phase["tasks"]] for phase in phases]

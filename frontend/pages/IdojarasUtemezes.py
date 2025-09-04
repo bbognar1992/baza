@@ -60,8 +60,16 @@ if not st.session_state.projects:
     st.info("Nincs projekt a rendszerben. Adj hozzá projekteket a Projektek oldalon.")
     st.stop()
 
+projects_in_progress = [
+    p for p in st.session_state.projects if p.get("status") == "Folyamatban" or p.get("status") == "Késésben"
+]
+if not projects_in_progress:
+    st.info("Nincs folyamatban lévő projekt a rendszerben.")
+    st.stop()
+
+
 rows = []
-for idx, proj in enumerate(st.session_state.projects):
+for idx, proj in enumerate(projects_in_progress):
     locs = proj.get("locations") or []
     if not locs:
         rows.append({

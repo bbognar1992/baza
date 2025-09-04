@@ -1,5 +1,5 @@
 import streamlit as st
-from default_data import ensure_base_session_state, get_default_resources
+from default_data import ensure_base_session_state
 
 st.set_page_config(page_title="Resources – ÉpítAI", layout="wide")
 
