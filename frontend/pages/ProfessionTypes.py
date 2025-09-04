@@ -1,5 +1,5 @@
 import streamlit as st
-from default_data import ensure_base_session_state
+from default_data import ensure_base_session_state, get_default_profession_types
 
 st.set_page_config(page_title="Szakma típusok – ÉpítAI", layout="wide")
 
@@ -8,17 +8,7 @@ st.write("Hozz létre és kezeld a szakma típusokat.")
 
 ensure_base_session_state(st)
 
-if "profession_types" not in st.session_state:
-    st.session_state.profession_types = [
-        {"Név": "Kőműves", "Leírás": "Falazat, betonozás, vakolás", "Szint": "Szakmunkás"},
-        {"Név": "Villanyszerelő", "Leírás": "Elektromos hálózatok, kapcsolók, csatlakozók", "Szint": "Szakmunkás"},
-        {"Név": "Víz-gáz-fűtésszerelő", "Leírás": "Vízvezetékek, fűtés, szellőztetés", "Szint": "Szakmunkás"},
-        {"Név": "Ács", "Leírás": "Fa szerkezetek, tetőfedés", "Szint": "Szakmunkás"},
-        {"Név": "Burkoló", "Leírás": "Padló, falburkolatok", "Szint": "Szakmunkás"},
-        {"Név": "Festő", "Leírás": "Festés, tapétázás", "Szint": "Szakmunkás"},
-        {"Név": "Műszaki vezető", "Leírás": "Projekt koordináció, minőségbiztosítás", "Szint": "Vezető"},
-        {"Név": "Építésvezető", "Leírás": "Teljes építkezés irányítása", "Szint": "Vezető"},
-    ]
+# Profession types are now handled by ensure_base_session_state
 
 if "selected_profession_type_index" not in st.session_state:
     st.session_state.selected_profession_type_index = None

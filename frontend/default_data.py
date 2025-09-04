@@ -13,6 +13,19 @@ def get_default_resources():
     ]
 
 
+def get_default_profession_types():
+    return [
+        {"Név": "Kőműves", "Leírás": "Falazat, betonozás, vakolás", "Szint": "Szakmunkás"},
+        {"Név": "Villanyszerelő", "Leírás": "Elektromos hálózatok, kapcsolók, csatlakozók", "Szint": "Szakmunkás"},
+        {"Név": "Víz-gáz-fűtésszerelő", "Leírás": "Vízvezetékek, fűtés, szellőztetés", "Szint": "Szakmunkás"},
+        {"Név": "Ács", "Leírás": "Fa szerkezetek, tetőfedés", "Szint": "Szakmunkás"},
+        {"Név": "Burkoló", "Leírás": "Padló, falburkolatok", "Szint": "Szakmunkás"},
+        {"Név": "Festő", "Leírás": "Festés, tapétázás", "Szint": "Szakmunkás"},
+        {"Név": "Műszaki vezető", "Leírás": "Projekt koordináció, minőségbiztosítás", "Szint": "Vezető"},
+        {"Név": "Építésvezető", "Leírás": "Teljes építkezés irányítása", "Szint": "Vezető"},
+    ]
+
+
 def get_default_project_types():
     return [
         {"Név": "Földszintes ház", "Leírás": "Egyszintes családi ház"},
@@ -25,58 +38,59 @@ def get_default_phases():
         {
             "name": "Szerződéskötés",
             "tasks": [
-                "Ügyfél igényfelmérés",
-                "Ajánlatadás",
-                "Szerződés megírása, kiküldése",
-                "Engedélyek, biztosítások",
-                "[AI] Szerződés sablonok, automatikus kitöltés",
+                {"name": "Ügyfél igényfelmérés", "profession": "Építésvezető"},
+                {"name": "Ajánlatadás", "profession": "Építésvezető"},
+                {"name": "Szerződés megírása, kiküldése", "profession": "Építésvezető"},
+                {"name": "Engedélyek, biztosítások", "profession": "Építésvezető"},
+                {"name": "[AI] Szerződés sablonok, automatikus kitöltés", "profession": ""},
             ],
         },
         {
             "name": "Tervezés",
             "tasks": [
-                "Építészeti tervek",
-                "Statikai, gépészeti, elektromos tervek",
-                "Engedélyek beadása",
-                "Költségvetés, ütemterv",
+                {"name": "Építészeti tervek", "profession": "Műszaki vezető"},
+                {"name": "Statikai, gépészeti, elektromos tervek", "profession": "Műszaki vezető"},
+                {"name": "Engedélyek beadása", "profession": "Építésvezető"},
+                {"name": "Költségvetés, ütemterv", "profession": "Műszaki vezető"},
             ],
         },
         {
             "name": "Anyag- és erőforrás-tervezés",
             "tasks": [
-                "Anyagok listázása",
-                "Ajánlatkérések kiküldése",
-                "Beszállítók kiválasztása",
-                "Munkaerő és alvállalkozók ütemezése",
-                "[AI] Ajánlatkérés e-mailben + válaszok feldolgozása",
+                {"name": "Anyagok listázása", "profession": "Műszaki vezető"},
+                {"name": "Ajánlatkérések kiküldése", "profession": "Műszaki vezető"},
+                {"name": "Beszállítók kiválasztása", "profession": "Műszaki vezető"},
+                {"name": "Munkaerő és alvállalkozók ütemezése", "profession": "Műszaki vezető"},
+                {"name": "[AI] Ajánlatkérés e-mailben + válaszok feldolgozása", "profession": ""},
             ],
         },
         {
             "name": "Kivitelezés",
             "tasks": [
-                "Alapozás, földmunka",
-                "Falazat, szerkezetépítés",
-                "Tető, nyílászárók",
-                "Gépészet, villanyszerelés",
-                "Vakolás, burkolás, festés",
-                "[AI] Erőforrás ütemezés (időjárás + ember + eszköz)",
+                {"name": "Alapozás, földmunka", "profession": "Kőműves"},
+                {"name": "Falazat, szerkezetépítés", "profession": "Kőműves"},
+                {"name": "Tető, nyílászárók", "profession": "Ács"},
+                {"name": "Gépészet, villanyszerelés", "profession": "Víz-gáz-fűtésszerelő"},
+                {"name": "Villanyszerelés", "profession": "Villanyszerelő"},
+                {"name": "Vakolás, burkolás, festés", "profession": "Burkoló"},
+                {"name": "[AI] Erőforrás ütemezés (időjárás + ember + eszköz)", "profession": ""},
             ],
         },
         {
             "name": "Műszaki átadás",
             "tasks": [
-                "Ellenőrzés, műszaki vezető",
-                "Hibajegyzék készítése",
-                "Használatbavételi engedély",
-                "[AI] Checklist + hibajegyzék automatikus generálás",
+                {"name": "Ellenőrzés, műszaki vezető", "profession": "Műszaki vezető"},
+                {"name": "Hibajegyzék készítése", "profession": "Műszaki vezető"},
+                {"name": "Használatbavételi engedély", "profession": "Építésvezető"},
+                {"name": "[AI] Checklist + hibajegyzék automatikus generálás", "profession": ""},
             ],
         },
         {
             "name": "Projekt lezárás",
             "tasks": [
-                "Pénzügyi elszámolás",
-                "Kulcsátadás",
-                "Garanciális időszak indul",
+                {"name": "Pénzügyi elszámolás", "profession": "Építésvezető"},
+                {"name": "Kulcsátadás", "profession": "Építésvezető"},
+                {"name": "Garanciális időszak indul", "profession": "Műszaki vezető"},
             ],
         },
     ]
@@ -85,6 +99,8 @@ def get_default_phases():
 def ensure_base_session_state(st):
     if "resources" not in st.session_state:
         st.session_state.resources = get_default_resources()
+    if "profession_types" not in st.session_state:
+        st.session_state.profession_types = get_default_profession_types()
     if "project_types" not in st.session_state or not st.session_state.project_types:
         st.session_state.project_types = get_default_project_types()
     if "projects" not in st.session_state:

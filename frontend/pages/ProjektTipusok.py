@@ -1,6 +1,8 @@
 import streamlit as st
 from default_data import get_default_phases, ensure_base_session_state, get_default_project_types
 
+# Profession types are now handled by ensure_base_session_state
+
 st.set_page_config(page_title="Projekt típusok – ÉpítAI", layout="wide")
 
 st.title("🏷️ Projekt típusok")
@@ -54,7 +56,7 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
 
     # Button to add a new phase
     if st.button("➕ Új fázis hozzáadása"):
-        ptype["phases"].append({"name": "Új fázis", "tasks": ["Új feladat"]})
+        ptype["phases"].append({"name": "Új fázis", "tasks": [{"name": "Új feladat", "profession": ""}]})
         ptype["phases_checked"].append([False])
         st.rerun()
 
@@ -64,39 +66,91 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
             new_name = st.text_input("Fázis neve", value=phase["name"], key=f"ptype_name_{selected_index}_{pi}")
             phase["name"] = new_name.strip() or phase["name"]
 
-            # Editable tasks as newline-separated
-            tasks_str = "\n".join(phase.get("tasks", []))
-            new_tasks_str = st.text_area("Feladatok (soronként)", value=tasks_str, height=120, key=f"ptype_tasks_{selected_index}_{pi}")
-            new_tasks = [ln.strip() for ln in new_tasks_str.split("\n") if ln.strip()]
-            if not new_tasks:
-                new_tasks = ["(üres feladat)"]
-            phase["tasks"] = new_tasks
+            # Ensure tasks have the new structure with profession
+            if "tasks" not in phase or not phase["tasks"]:
+                phase["tasks"] = [{"name": "Új feladat", "profession": ""}]
+            elif isinstance(phase["tasks"][0], str):  # Convert old string format to new object format
+                phase["tasks"] = [{"name": task, "profession": ""} for task in phase["tasks"]]
 
-            # Resize checked list for this phase to match tasks count
-            current_checks = ptype["phases_checked"][pi]
-            new_len = len(new_tasks)
-            resized = []
-            for ti in range(new_len):
-                resized.append(current_checks[ti] if ti < len(current_checks) else False)
-            ptype["phases_checked"][pi] = resized
+            # Task management section
+            st.write("#### Feladatok")
+            
+            # Add new task button
+            if st.button("➕ Új feladat", key=f"add_task_{selected_index}_{pi}"):
+                phase["tasks"].append({"name": "Új feladat", "profession": ""})
+                ptype["phases_checked"][pi].append(False)
+                st.rerun()
 
-            # Render checkboxes bound to stored state
-            for ti, task in enumerate(new_tasks):
-                total_tasks += 1
-                current = ptype["phases_checked"][pi][ti]
-                stored = st.checkbox(task, value=current, key=f"ptype_chk_{selected_index}_{pi}_{ti}")
-                ptype["phases_checked"][pi][ti] = stored
-                if stored:
-                    total_done += 1
+            # Display and edit tasks
+            for ti, task_obj in enumerate(phase["tasks"]):
+                task_name = task_obj.get("name", "Új feladat")
+                task_profession = task_obj.get("profession", "")
+                
+                with st.container():
+                    col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
+                    
+                    with col1:
+                        # Task name input
+                        new_task_name = st.text_input(
+                            "Feladat neve", 
+                            value=task_name, 
+                            key=f"task_name_{selected_index}_{pi}_{ti}"
+                        )
+                        task_obj["name"] = new_task_name.strip() or "Új feladat"
+                    
+                    with col2:
+                        # Profession selection
+                        profession_names = [""] + [p.get("Név", "") for p in st.session_state.profession_types]
+                        current_profession_index = profession_names.index(task_profession) if task_profession in profession_names else 0
+                        selected_profession = st.selectbox(
+                            "Szakma", 
+                            options=profession_names,
+                            index=current_profession_index,
+                            key=f"task_profession_{selected_index}_{pi}_{ti}"
+                        )
+                        task_obj["profession"] = selected_profession
+                    
+                    with col3:
+                        # Checkbox for completion
+                        if ti < len(ptype["phases_checked"][pi]):
+                            current = ptype["phases_checked"][pi][ti]
+                            stored = st.checkbox("✓", value=current, key=f"ptype_chk_{selected_index}_{pi}_{ti}")
+                            ptype["phases_checked"][pi][ti] = stored
+                            if stored:
+                                total_done += 1
+                            total_tasks += 1
+                    
+                    with col4:
+                        # Delete task button
+                        if st.button("❌", key=f"del_task_{selected_index}_{pi}_{ti}"):
+                            phase["tasks"].pop(ti)
+                            if ti < len(ptype["phases_checked"][pi]):
+                                ptype["phases_checked"][pi].pop(ti)
+                            st.rerun()
+                    
+                    # Show profession info if selected
+                    if selected_profession:
+                        profession_info = next((p for p in st.session_state.profession_types if p.get("Név") == selected_profession), None)
+                        if profession_info:
+                            level = profession_info.get("Szint", "")
+                            level_color = "orange" if level == "Vezető" else "red" if level == "Szakértő" else "blue"
+                            st.markdown(f"<small style='color: {level_color};'>🔧 {selected_profession} ({level})</small>", unsafe_allow_html=True)
 
-            phase_total = len(new_tasks) or 1
+            # Ensure phases_checked matches tasks count
+            while len(ptype["phases_checked"][pi]) < len(phase["tasks"]):
+                ptype["phases_checked"][pi].append(False)
+            if len(ptype["phases_checked"][pi]) > len(phase["tasks"]):
+                ptype["phases_checked"][pi] = ptype["phases_checked"][pi][:len(phase["tasks"])]
+
+            # Progress for this phase
+            phase_total = len(phase["tasks"]) or 1
             phase_done = sum(1 for v in ptype["phases_checked"][pi] if v)
             pct = int(phase_done * 100 / phase_total)
             st.progress(pct)
             st.caption(f"{pct}% ({phase_done}/{phase_total})")
 
             # Delete phase button
-            if st.button("Fázis törlése", key=f"del_phase_{selected_index}_{pi}"):
+            if st.button("🗑️ Fázis törlése", key=f"del_phase_{selected_index}_{pi}"):
                 ptype["phases"].pop(pi)
                 ptype["phases_checked"].pop(pi)
                 st.rerun()

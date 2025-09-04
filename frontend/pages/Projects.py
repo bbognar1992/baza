@@ -70,7 +70,17 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
             for ti, task in enumerate(phase["tasks"]):
                 total_tasks += 1
                 current = project["phases_checked"][pi][ti]
-                new_val = st.checkbox(task, value=current, key=f"proj_{selected_index}_{pi}_{ti}")
+                
+                # Handle both old string format and new object format
+                if isinstance(task, str):
+                    task_name = task
+                else:
+                    task_name = task.get("name", "Unknown task")
+                    task_profession = task.get("profession", "")
+                    if task_profession:
+                        task_name = f"{task_name} (🔧 {task_profession})"
+                
+                new_val = st.checkbox(task_name, value=current, key=f"proj_{selected_index}_{pi}_{ti}")
                 project["phases_checked"][pi][ti] = new_val
                 if new_val:
                     total_done += 1
