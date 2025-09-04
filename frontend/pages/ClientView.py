@@ -195,39 +195,12 @@ if selected_project:
     next_phase_index = current_phase_index + 1
     if next_phase_index < len(phases_def):
         next_phase = phases_def[next_phase_index]
-        next_phase_total = len(next_phase["tasks"])
-        next_phase_done = sum(1 for v in selected_project["phases_checked"][next_phase_index] if v) if next_phase_index < len(selected_project["phases_checked"]) else 0
-        next_phase_progress = int(next_phase_done * 100 / next_phase_total) if next_phase_total else 0
         
         st.markdown(f"""
         <div class="phase-card">
             <h4>⏭️ Következő fázis: {next_phase_index+1}. {next_phase['name']}</h4>
-            <p><strong>Előkészítés:</strong> {next_phase_done}/{next_phase_total} feladat kész</p>
+        </div>
         """, unsafe_allow_html=True)
-        
-        st.progress(next_phase_progress / 100)
-        st.markdown(f"<p style='text-align: center;'><strong>{next_phase_progress}%</strong></p>", unsafe_allow_html=True)
-        
-        # Show tasks in a simplified way
-        for ti, task in enumerate(next_phase["tasks"]):
-            is_completed = selected_project["phases_checked"][next_phase_index][ti] if next_phase_index < len(selected_project["phases_checked"]) and ti < len(selected_project["phases_checked"][next_phase_index]) else False
-            
-            # Handle both old string format and new object format
-            if isinstance(task, str):
-                task_name = task
-            else:
-                task_name = task.get("name", "Unknown task")
-            
-            status_icon = "✅" if is_completed else "⏳"
-            css_class = "task-completed" if is_completed else "task-pending"
-            
-            st.markdown(f"""
-            <div class="task-item {css_class}">
-                {status_icon} {task_name}
-            </div>
-            """, unsafe_allow_html=True)
-        
-        st.markdown("</div>", unsafe_allow_html=True)
 
     # Simplified timeline chart
     st.markdown("### 📅 Ütemterv")
@@ -277,46 +250,6 @@ if selected_project:
             st.plotly_chart(fig, use_container_width=True)
     except Exception as e:
         st.info("Ütemterv nem elérhető.")
-
-    # Project team (simplified)
-    if selected_project.get("members"):
-        st.markdown("### 👥 Projekt csapat")
-        members_text = ", ".join(selected_project["members"])
-        st.info(f"**A projekten dolgozó szakemberek:** {members_text}")
-
-    # Location map
-    locations = selected_project.get("locations", [])
-    if locations:
-        st.markdown("### 🗺️ Helyszín")
-        
-        @st.cache_data(show_spinner=False)
-        def geocode_location(name: str):
-            """Return (lat, lon) for a location name using OpenStreetMap Nominatim."""
-            try:
-                resp = requests.get(
-                    "https://nominatim.openstreetmap.org/search",
-                    params={"q": name, "format": "json", "limit": 1},
-                    headers={"User-Agent": "epit-ai/1.0"},
-                    timeout=5,
-                )
-                resp.raise_for_status()
-                results = resp.json()
-                if results:
-                    return float(results[0]["lat"]), float(results[0]["lon"])
-            except Exception:
-                pass
-            return None
-
-        points = []
-        for loc in locations:
-            coords = geocode_location(loc)
-            if coords:
-                points.append({"lat": coords[0], "lon": coords[1]})
-        
-        if points:
-            st.map(points, zoom=12)
-        else:
-            st.info(f"Projekt helyszíne: {', '.join(locations)}")
 
     # Footer with contact information
     st.markdown("---")
