@@ -1,76 +1,18 @@
 import streamlit as st
+from default_data import get_default_phases, ensure_base_session_state, get_default_project_types
 
 st.set_page_config(page_title="Projekt típusok – ÉpítAI", layout="wide")
 
 st.title("🏷️ Projekt típusok")
 st.write("Hozz létre és kezeld a projekt típusokat.")
 
-# Init default types
-if "project_types" not in st.session_state:
-    st.session_state.project_types = [
-        {"Név": "Földszintes ház", "Leírás": "Egyszintes családi ház"},
-        {"Név": "Tetőteres ház", "Leírás": "Beépített tetőterű családi ház"},
-    ]
+ensure_base_session_state(st)
 
 if "selected_project_type_index" not in st.session_state:
     st.session_state.selected_project_type_index = None
 
-def get_default_phases():
-    return [
-        {
-            "name": "Szerződéskötés",
-            "tasks": [
-                "Ügyfél igényfelmérés",
-                "Ajánlatadás",
-                "Szerződés megírása, kiküldése",
-                "Engedélyek, biztosítások",
-            ],
-        },
-        {
-            "name": "Tervezés",
-            "tasks": [
-                "Építészeti tervek",
-                "Statikai, gépészeti, elektromos tervek",
-                "Engedélyek beadása",
-                "Költségvetés, ütemterv",
-            ],
-        },
-        {
-            "name": "Anyag- és erőforrás-tervezés",
-            "tasks": [
-                "Anyagok listázása",
-                "Ajánlatkérések kiküldése",
-                "Beszállítók kiválasztása",
-                "Munkaerő és alvállalkozók ütemezése",
-            ],
-        },
-        {
-            "name": "Kivitelezés",
-            "tasks": [
-                "Alapozás, földmunka",
-                "Falazat, szerkezetépítés",
-                "Tető, nyílászárók",
-                "Gépészet, villanyszerelés",
-                "Vakolás, burkolás, festés",
-            ],
-        },
-        {
-            "name": "Műszaki átadás",
-            "tasks": [
-                "Ellenőrzés, műszaki vezető",
-                "Hibajegyzék készítése",
-                "Használatbavételi engedély",
-            ],
-        },
-        {
-            "name": "Projekt lezárás",
-            "tasks": [
-                "Pénzügyi elszámolás",
-                "Kulcsátadás",
-                "Garanciális időszak indul",
-            ],
-        },
-    ]
+def _noop():
+    return None
 
 with st.expander("➕ Új típus hozzáadása", expanded=False):
     t_name = st.text_input("Típus neve", key="ptype_name")

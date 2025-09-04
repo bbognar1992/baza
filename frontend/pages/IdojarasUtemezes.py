@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from datetime import date, timedelta
+from default_data import ensure_base_session_state
 
 st.set_page_config(page_title="Időjárás alapú ütemezés – ÉpítAI", layout="wide")
 
@@ -46,9 +47,7 @@ def fetch_weekly_weather(lat: float, lon: float, start: date, end: date):
         return None
 
 
-# Ensure baseline session data
-if "projects" not in st.session_state:
-    st.session_state.projects = []
+ensure_base_session_state(st)
 
 col_a, col_b = st.columns([1, 2])
 with col_a:

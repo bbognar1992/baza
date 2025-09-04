@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import date
+from default_data import ensure_base_session_state
 
 st.set_page_config(page_title="Anyagár ajánlatkérés AI-val – ÉpítAI", layout="wide")
 
@@ -7,11 +8,7 @@ st.title("🧠 Anyagár ajánlatkérés AI-val")
 
 st.write("Készíts gyorsan, egységes formátumú ajánlatkérő e-maileket a beszállítóknak.")
 
-# Ensure baseline session data
-if "resources" not in st.session_state:
-    st.session_state.resources = []
-if "projects" not in st.session_state:
-    st.session_state.projects = []
+ensure_base_session_state(st)
 
 suppliers = [r for r in st.session_state.resources if r.get("Típus") == "Beszállító"]
 supplier_names = [s.get("Név", "") for s in suppliers if s.get("Név")]
