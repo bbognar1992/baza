@@ -4,8 +4,8 @@ from default_data import ensure_base_session_state
 ensure_base_session_state(st)
 
 pages = {
-    "Home": [
-        st.Page("Home.py", title="Home"),
+    "": [
+        st.Page("Home.py", title="Kezdőoldal"),
     ],
     "Projektmenedzsment": [
         st.Page("pages/Projects.py", title="Projektek"),
