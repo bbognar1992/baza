@@ -68,20 +68,22 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
 
             # Ensure tasks have the new structure with profession
             if "tasks" not in phase or not phase["tasks"]:
-                phase["tasks"] = [{"name": "Új feladat", "profession": "", "duration_days": 1}]
+                phase["tasks"] = [{"name": "Új feladat", "profession": "", "duration_days": 1, "required_people": 1}]
             elif isinstance(phase["tasks"][0], str):  # Convert old string format to new object format
-                phase["tasks"] = [{"name": task, "profession": "", "duration_days": 1} for task in phase["tasks"]]
-            # Ensure all tasks have duration_days field
+                phase["tasks"] = [{"name": task, "profession": "", "duration_days": 1, "required_people": 1} for task in phase["tasks"]]
+            # Ensure all tasks have required fields
             for task in phase["tasks"]:
                 if "duration_days" not in task:
                     task["duration_days"] = 1
+                if "required_people" not in task:
+                    task["required_people"] = 1
 
             # Task management section
             st.write("#### Feladatok")
             
             # Add new task button
             if st.button("➕ Új feladat", key=f"add_task_{selected_index}_{pi}"):
-                phase["tasks"].append({"name": "Új feladat", "profession": "", "duration_days": 1})
+                phase["tasks"].append({"name": "Új feladat", "profession": "", "duration_days": 1, "required_people": 1})
                 ptype["phases_checked"][pi].append(False)
                 st.rerun()
 
@@ -91,7 +93,7 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
                 task_profession = task_obj.get("profession", "")
                 
                 with st.container():
-                    col1, col2, col3, col4, col5 = st.columns([3, 2, 1, 1, 1])
+                    col1, col2, col3, col4, col5, col6 = st.columns([3, 2, 1, 1, 1, 1])
                     
                     with col1:
                         # Task name input
@@ -129,6 +131,18 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
                             phase["total_duration_days"] = sum(task.get("duration_days", 1) for task in phase["tasks"])
                     
                     with col4:
+                        # Required people input
+                        task_required_people = task_obj.get("required_people", 1)
+                        new_required_people = st.number_input(
+                            "Emberek", 
+                            min_value=1, 
+                            value=int(task_required_people), 
+                            key=f"task_required_people_{selected_index}_{pi}_{ti}"
+                        )
+                        if new_required_people != task_required_people:
+                            task_obj["required_people"] = new_required_people
+                    
+                    with col5:
                         # Checkbox for completion
                         if ti < len(ptype["phases_checked"][pi]):
                             current = ptype["phases_checked"][pi][ti]
@@ -138,7 +152,7 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
                                 total_done += 1
                             total_tasks += 1
                     
-                    with col5:
+                    with col6:
                         # Delete task button
                         if st.button("❌", key=f"del_task_{selected_index}_{pi}_{ti}"):
                             phase["tasks"].pop(ti)
@@ -167,10 +181,11 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
             st.progress(pct)
             st.caption(f"{pct}% ({phase_done}/{phase_total})")
             
-            # Phase duration summary
+            # Phase duration and people summary
             total_phase_duration = sum(task.get("duration_days", 1) for task in phase["tasks"])
+            total_phase_people = sum(task.get("required_people", 1) for task in phase["tasks"])
             phase["total_duration_days"] = total_phase_duration  # Update the phase total
-            st.info(f"⏱️ Fázis teljes időtartama: {total_phase_duration} nap")
+            st.info(f"⏱️ Fázis teljes időtartama: {total_phase_duration} nap | 👥 Szükséges emberek: {total_phase_people} fő")
 
             # Delete phase button
             if st.button("🗑️ Fázis törlése", key=f"del_phase_{selected_index}_{pi}"):
@@ -183,11 +198,19 @@ if selected_index is not None and 0 <= selected_index < len(st.session_state.pro
     st.progress(overall)
     st.caption(f"{overall}%")
     
-    # Total project duration
+    # Total project duration and people
     total_project_duration = calculate_total_project_duration(ptype["phases"])
+    total_project_people = sum(
+        sum(task.get("required_people", 1) for task in phase["tasks"]) 
+        for phase in ptype["phases"]
+    )
     
-    st.write("### ⏱️ Projekt időtartam")
-    st.metric("Teljes időtartam", f"{total_project_duration} nap")
+    st.write("### ⏱️ Projekt áttekintés")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Teljes időtartam", f"{total_project_duration} nap")
+    with col2:
+        st.metric("Szükséges emberek", f"{total_project_people} fő")
 
     if st.button("⬅️ Vissza a listához"):
         st.session_state.selected_project_type_index = None

@@ -176,12 +176,19 @@ if selected_project:
             completion_ratio = phase_done / phase_total
             current_phase_days = int(phase.get('total_duration_days', 0) * completion_ratio)
         
+        # Calculate total required people for this phase
+        total_required_people = 0
+        for task in phase["tasks"]:
+            if isinstance(task, dict) and "required_people" in task:
+                total_required_people += task.get("required_people", 0)
+        
         st.markdown(f"""
         <div class="phase-card">
             <h4>🎯 Aktuális fázis: {current_phase_index+1}. {phase['name']}</h4>
             <p><strong>Haladás:</strong> {phase_done}/{phase_total} feladat kész</p>
             <p><strong>Teljes időtartam:</strong> {phase.get('total_duration_days', 0)} nap</p>
             <p><strong>Időbeli haladás:</strong> {current_phase_days} / {phase.get('total_duration_days', 0)} nap</p>
+            <p><strong>Szükséges emberek:</strong> {total_required_people} fő</p>
         """, unsafe_allow_html=True)
         
         # Time-based progress bar
@@ -197,18 +204,25 @@ if selected_project:
             if isinstance(task, str):
                 task_name = task
                 task_duration = "N/A"
+                required_people = "N/A"
             else:
                 task_name = task.get("name", "Unknown task")
                 task_duration = task.get("duration_days", "N/A")
+                required_people = task.get("required_people", "N/A")
                 if isinstance(task_duration, int):
                     task_duration = f"{task_duration} nap"
+                if isinstance(required_people, int):
+                    required_people = f"{required_people} fő"
             
             status_icon = "✅" if is_completed else "⏳"
             css_class = "task-completed" if is_completed else "task-pending"
             
             st.markdown(f"""
             <div class="task-item {css_class}">
-                {status_icon} {task_name} <span style="float: right; color: #666; font-size: 0.9em;">⏱️ {task_duration}</span>
+                {status_icon} {task_name} 
+                <span style="float: right; color: #666; font-size: 0.9em;">
+                    ⏱️ {task_duration} | 👥 {required_people}
+                </span>
             </div>
             """, unsafe_allow_html=True)
     
@@ -234,11 +248,18 @@ if selected_project:
                 status_icon = "⏳"
                 status_class = "phase-info"
             
+            # Calculate total required people for this phase
+            total_required_people = 0
+            for task in phase["tasks"]:
+                if isinstance(task, dict) and "required_people" in task:
+                    total_required_people += task.get("required_people", 0)
+            
             st.markdown(f"""
             <div class="phase-card {status_class}">
                 <h5>{status_icon} {phase['name']}</h5>
                 <p><strong>Feladatok:</strong> {phase_done}/{phase_total}</p>
                 <p><strong>Időtartam:</strong> {phase.get('total_duration_days', 0)} nap</p>
+                <p><strong>Szükséges emberek:</strong> {total_required_people} fő</p>
                 <p><strong>Haladás:</strong> {phase_progress}%</p>
             </div>
             """, unsafe_allow_html=True)
@@ -266,7 +287,14 @@ if selected_project:
     
     remaining_days = total_project_days - completed_phases_days
     
-    col1, col2, col3 = st.columns(3)
+    # Calculate total required people for the entire project
+    total_required_people = 0
+    for phase in phases_def:
+        for task in phase["tasks"]:
+            if isinstance(task, dict) and "required_people" in task:
+                total_required_people += task.get("required_people", 0)
+    
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.markdown(f"""
@@ -289,6 +317,14 @@ if selected_project:
         <div class="client-metric">
             <h4>⏳ Hátralévő</h4>
             <p><strong>{remaining_days} nap</strong></p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown(f"""
+        <div class="client-metric">
+            <h4>👥 Szükséges emberek</h4>
+            <p><strong>{total_required_people} fő</strong></p>
         </div>
         """, unsafe_allow_html=True)
     
