@@ -9,14 +9,16 @@ pages = {
     ],
     "Projektmenedzsment": [
         st.Page("pages/Projects.py", title="Projektek"),
-        st.Page("pages/ProjektTipusok.py", title="Projekt Típusok"),
-        st.Page("pages/ProfessionTypes.py", title="Szakmák"),
         st.Page("pages/IdojarasUtemezes.py", title="Időjárás Ütemezés"),
         st.Page("pages/Resources.py", title="Erőforrások"),
     ],
     "AI Asszisztensek": [
         st.Page("pages/AnyagarAjanlatkeresAI.py", title="Anyagár Ajánlatkérés"),
         st.Page("pages/SzerzodeskeszitesAI.py", title="Szerződéskészítés"),
+    ],
+    "Beállítások": [
+        st.Page("pages/ProfessionTypes.py", title="Szakmák"),
+        st.Page("pages/ProjektTipusok.py", title="Projekt Típusok"),
     ],
 }
 
