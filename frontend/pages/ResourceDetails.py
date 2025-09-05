@@ -147,7 +147,8 @@ else:
                                 "Készségek": skills,
                                 "Órabér": hourly_rate,
                                 "Elérhetőség": availability,
-                                "Tapasztalat": experience_years
+                                "Tapasztalat": experience_years,
+                                "unavailability_periods": resource.get("unavailability_periods", [])
                             }
                             st.success("Erőforrás sikeresen frissítve!")
                             st.session_state.edit_mode = False
@@ -193,11 +194,12 @@ else:
                 )
             
             # Detailed information tabs
-            tab1, tab2, tab3, tab4 = st.tabs([
+            tab1, tab2, tab3, tab4, tab5 = st.tabs([
                 "📋 Alapadatok",
                 "📞 Kapcsolat",
                 "🛠️ Készségek",
-                "📊 Projektek"
+                "📊 Projektek",
+                "🚫 Elérhetetlenség"
             ])
             
             with tab1:
@@ -277,6 +279,97 @@ else:
                 else:
                     st.info("Ez az erőforrás még nem vett részt egyetlen projektben sem.")
             
+            with tab5:
+                st.subheader("🚫 Elérhetetlenségi időszakok")
+                
+                # Initialize unavailability periods if not exists
+                if "unavailability_periods" not in resource:
+                    resource["unavailability_periods"] = []
+                
+                # Display existing periods
+                if resource["unavailability_periods"]:
+                    st.write("**Jelenlegi elérhetetlenségi időszakok:**")
+                    
+                    for i, period in enumerate(resource["unavailability_periods"]):
+                        with st.expander(f"📅 {period['start_date']} - {period['end_date']} ({period['reason']})"):
+                            col1, col2, col3 = st.columns([2, 1, 1])
+                            
+                            with col1:
+                                st.write(f"**Indulás:** {period['start_date']}")
+                                st.write(f"**Befejezés:** {period['end_date']}")
+                                st.write(f"**Ok:** {period['reason']}")
+                                if period.get('notes'):
+                                    st.write(f"**Megjegyzés:** {period['notes']}")
+                            
+                            with col2:
+                                if st.button("✏️ Szerkesztés", key=f"edit_period_{i}"):
+                                    st.session_state[f"edit_period_index"] = i
+                                    st.rerun()
+                            
+                            with col3:
+                                if st.button("🗑️ Törlés", key=f"delete_period_{i}"):
+                                    st.session_state[f"delete_period_index"] = i
+                                    st.rerun()
+                else:
+                    st.info("Nincsenek megadva elérhetetlenségi időszakok.")
+                
+                # Add new period form
+                st.markdown("---")
+                st.subheader("➕ Új elérhetetlenségi időszak hozzáadása")
+                
+                with st.form("add_unavailability_form"):
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        start_date = st.date_input(
+                            "Kezdő dátum",
+                            value=datetime.now().date(),
+                            key="new_start_date"
+                        )
+                        reason = st.selectbox(
+                            "Ok",
+                            ["Szabadság", "Betegszabadság", "Személyes ok", "Egyéb"],
+                            key="new_reason"
+                        )
+                    
+                    with col2:
+                        end_date = st.date_input(
+                            "Befejező dátum",
+                            value=datetime.now().date() + timedelta(days=1),
+                            key="new_end_date"
+                        )
+                        notes = st.text_input(
+                            "Megjegyzés (opcionális)",
+                            key="new_notes"
+                        )
+                    
+                    if st.form_submit_button("➕ Hozzáadás", type="primary"):
+                        if start_date <= end_date:
+                            # Check for conflicts
+                            conflict = False
+                            for existing_period in resource["unavailability_periods"]:
+                                existing_start = datetime.strptime(existing_period["start_date"], "%Y-%m-%d").date()
+                                existing_end = datetime.strptime(existing_period["end_date"], "%Y-%m-%d").date()
+                                
+                                if (start_date <= existing_end and end_date >= existing_start):
+                                    conflict = True
+                                    break
+                            
+                            if not conflict:
+                                new_period = {
+                                    "start_date": start_date.strftime("%Y-%m-%d"),
+                                    "end_date": end_date.strftime("%Y-%m-%d"),
+                                    "reason": reason,
+                                    "notes": notes
+                                }
+                                resource["unavailability_periods"].append(new_period)
+                                st.success("Elérhetetlenségi időszak sikeresen hozzáadva!")
+                                st.rerun()
+                            else:
+                                st.error("A megadott időszak ütközik egy meglévő elérhetetlenségi időszakkal!")
+                        else:
+                            st.error("A kezdő dátum nem lehet későbbi, mint a befejező dátum!")
+            
             # Action buttons
             st.markdown("---")
             col1, col2, col3 = st.columns(3)
@@ -349,6 +442,99 @@ else:
                     st.info("Nincs elérhető projekt, ahova hozzáadhatnád ezt az erőforrást.")
                     if st.button("❌ Bezárás", key="close_add_to_project"):
                         st.session_state.show_add_to_project = False
+                        st.rerun()
+            
+            # Edit period dialog
+            if st.session_state.get("edit_period_index") is not None:
+                period_index = st.session_state.edit_period_index
+                period = resource["unavailability_periods"][period_index]
+                
+                st.subheader("✏️ Elérhetetlenségi időszak szerkesztése")
+                
+                with st.form("edit_period_form"):
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        edit_start_date = st.date_input(
+                            "Kezdő dátum",
+                            value=datetime.strptime(period["start_date"], "%Y-%m-%d").date(),
+                            key="edit_start_date"
+                        )
+                        edit_reason = st.selectbox(
+                            "Ok",
+                            ["Szabadság", "Betegszabadság", "Személyes ok", "Egyéb"],
+                            index=["Szabadság", "Betegszabadság", "Személyes ok", "Egyéb"].index(period["reason"]),
+                            key="edit_reason"
+                        )
+                    
+                    with col2:
+                        edit_end_date = st.date_input(
+                            "Befejező dátum",
+                            value=datetime.strptime(period["end_date"], "%Y-%m-%d").date(),
+                            key="edit_end_date"
+                        )
+                        edit_notes = st.text_input(
+                            "Megjegyzés (opcionális)",
+                            value=period.get("notes", ""),
+                            key="edit_notes"
+                        )
+                    
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        if st.form_submit_button("💾 Mentés", type="primary"):
+                            if edit_start_date <= edit_end_date:
+                                # Check for conflicts with other periods
+                                conflict = False
+                                for i, existing_period in enumerate(resource["unavailability_periods"]):
+                                    if i != period_index:  # Skip the current period being edited
+                                        existing_start = datetime.strptime(existing_period["start_date"], "%Y-%m-%d").date()
+                                        existing_end = datetime.strptime(existing_period["end_date"], "%Y-%m-%d").date()
+                                        
+                                        if (edit_start_date <= existing_end and edit_end_date >= existing_start):
+                                            conflict = True
+                                            break
+                                
+                                if not conflict:
+                                    resource["unavailability_periods"][period_index] = {
+                                        "start_date": edit_start_date.strftime("%Y-%m-%d"),
+                                        "end_date": edit_end_date.strftime("%Y-%m-%d"),
+                                        "reason": edit_reason,
+                                        "notes": edit_notes
+                                    }
+                                    st.success("Elérhetetlenségi időszak sikeresen frissítve!")
+                                    st.session_state.edit_period_index = None
+                                    st.rerun()
+                                else:
+                                    st.error("A megadott időszak ütközik egy másik elérhetetlenségi időszakkal!")
+                            else:
+                                st.error("A kezdő dátum nem lehet későbbi, mint a befejező dátum!")
+                    
+                    with col2:
+                        if st.form_submit_button("❌ Mégse"):
+                            st.session_state.edit_period_index = None
+                            st.rerun()
+            
+            # Delete period confirmation
+            if st.session_state.get("delete_period_index") is not None:
+                period_index = st.session_state.delete_period_index
+                period = resource["unavailability_periods"][period_index]
+                
+                st.warning(f"⚠️ Biztosan törölni szeretnéd ezt az elérhetetlenségi időszakot?")
+                st.write(f"**Időszak:** {period['start_date']} - {period['end_date']} ({period['reason']})")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    if st.button("✅ Igen, törlés", key="confirm_delete_period"):
+                        del resource["unavailability_periods"][period_index]
+                        st.success("Elérhetetlenségi időszak sikeresen törölve!")
+                        st.session_state.delete_period_index = None
+                        st.rerun()
+                
+                with col2:
+                    if st.button("❌ Mégse", key="cancel_delete_period"):
+                        st.session_state.delete_period_index = None
                         st.rerun()
     else:
         st.error("A kiválasztott erőforrás nem található.")
