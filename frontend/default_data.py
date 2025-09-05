@@ -4,8 +4,44 @@ from datetime import datetime, timedelta
 
 def get_default_resources():
     return [
+        # Kőművesek
         {"Típus": "Alkalmazott", "Név": "Kiss János", "Pozíció": "Kőműves"},
+        {"Típus": "Alkalmazott", "Név": "Nagy Péter", "Pozíció": "Kőműves"},
+        {"Típus": "Alkalmazott", "Név": "Szabó László", "Pozíció": "Kőműves"},
+        
+        # Villanyszerelők
+        {"Típus": "Alkalmazott", "Név": "Kovács István", "Pozíció": "Villanyszerelő"},
+        {"Típus": "Alkalmazott", "Név": "Tóth Gábor", "Pozíció": "Villanyszerelő"},
+        
+        # Víz-gáz-fűtésszerelők
+        {"Típus": "Alkalmazott", "Név": "Molnár Zoltán", "Pozíció": "Víz-gáz-fűtésszerelő"},
+        {"Típus": "Alkalmazott", "Név": "Horváth Ferenc", "Pozíció": "Víz-gáz-fűtésszerelő"},
+        
+        # Ácsok
+        {"Típus": "Alkalmazott", "Név": "Varga József", "Pozíció": "Ács"},
+        {"Típus": "Alkalmazott", "Név": "Farkas Sándor", "Pozíció": "Ács"},
+        
+        # Burkolók
+        {"Típus": "Alkalmazott", "Név": "Balogh Tamás", "Pozíció": "Burkoló"},
+        {"Típus": "Alkalmazott", "Név": "Papp András", "Pozíció": "Burkoló"},
+        
+        # Festők
+        {"Típus": "Alkalmazott", "Név": "Lakatos Miklós", "Pozíció": "Festő"},
+        {"Típus": "Alkalmazott", "Név": "Takács Róbert", "Pozíció": "Festő"},
+        
+        # Műszaki vezetők
+        {"Típus": "Alkalmazott", "Név": "Kovácsné Anna", "Pozíció": "Műszaki vezető"},
+        {"Típus": "Alkalmazott", "Név": "Nagy Béla", "Pozíció": "Műszaki vezető"},
+        
+        # Építésvezetők
+        {"Típus": "Alkalmazott", "Név": "Szűcs Károly", "Pozíció": "Építésvezető"},
+        
+        # Alvállalkozók
         {"Típus": "Alvállalkozó", "Név": "Acél Kft.", "Pozíció": "Vasszerkezetek"},
+        {"Típus": "Alvállalkozó", "Név": "FaMester Bt.", "Pozíció": "Fa szerkezetek"},
+        {"Típus": "Alvállalkozó", "Név": "BurkolóPro Kft.", "Pozíció": "Burkolás"},
+        
+        # Beszállítók
         {"Típus": "Beszállító", "Név": "ÉpAnyag Zrt.", "Pozíció": "Beton, tégla"},
         {"Típus": "Beszállító", "Név": "FaTrade Kft.", "Pozíció": "Faanyagok"},
         {"Típus": "Beszállító", "Név": "VillTech Bt.", "Pozíció": "Villanyszerelési anyagok"},
