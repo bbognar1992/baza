@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import pandas as pd
 from datetime import date, timedelta
 from default_data import ensure_base_session_state
 
@@ -120,21 +121,54 @@ for idx, proj in enumerate(projects_in_progress):
     })
 
 
-ok, risk = st.columns(2)
-with ok:
-    st.subheader("✅ Haladhat a héten")
-    ok_rows = [r for r in rows if r["Haladhat"]]
-    if ok_rows:
-        st.table([{k: v for k, v in r.items() if k != "Haladhat"} for r in ok_rows])
-    else:
-        st.info("Nincs megfelelő projekt az időszakban.")
+# Create a single table with all projects
+st.subheader("📊 Projektek időjárás alapú ütemezése")
 
-with risk:
-    st.subheader("⚠️ Kockázatos / Nem javasolt")
-    bad_rows = [r for r in rows if not r["Haladhat"]]
-    if bad_rows:
-        st.table([{k: v for k, v in r.items() if k != "Haladhat"} for r in bad_rows])
-    else:
-        st.info("Nincs kockázatos projekt az időszakban.")
+if rows:
+    # Create table header
+    col1, col2, col3, col4 = st.columns([2, 2, 3, 2])
+    with col1:
+        st.markdown("**Projekt**")
+    with col2:
+        st.markdown("**Helyszín**")
+    with col3:
+        st.markdown("**Összegzés**")
+    with col4:
+        st.markdown("**Státusz**")
+    
+    # Add separator
+    st.markdown("---")
+    
+    # Display each row with conditional styling
+    for r in rows:
+        status = "✅ Haladhat" if r["Haladhat"] else "⚠️ Nem haladhat"
+        
+        # Choose background color based on status
+        if r["Haladhat"]:
+            # Green background for projects that can proceed
+            st.markdown(f"""
+            <div style="background-color: #e8f5e8; padding: 10px; margin: 2px 0; border-radius: 5px;">
+                <div style="display: flex; align-items: center;">
+                    <div style="flex: 2; font-weight: 500;">{r['Projekt']}</div>
+                    <div style="flex: 2;">{r['Helyszín']}</div>
+                    <div style="flex: 3;">{r['Összegzés']}</div>
+                    <div style="flex: 2; text-align: center;">{status}</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            # Red background for projects that cannot proceed
+            st.markdown(f"""
+            <div style="background-color: #ffebee; padding: 10px; margin: 2px 0; border-radius: 5px;">
+                <div style="display: flex; align-items: center;">
+                    <div style="flex: 2; font-weight: 500;">{r['Projekt']}</div>
+                    <div style="flex: 2;">{r['Helyszín']}</div>
+                    <div style="flex: 3;">{r['Összegzés']}</div>
+                    <div style="flex: 2; text-align: center;">{status}</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+else:
+    st.info("Nincs projekt az időszakban.")
 
 
