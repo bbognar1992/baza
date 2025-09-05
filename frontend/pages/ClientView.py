@@ -100,40 +100,20 @@ if selected_project:
     </div>
     """, unsafe_allow_html=True)
 
-    # Key metrics in a clean layout
+    # Key metrics in a clean layout using native Streamlit components
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.markdown(f"""
-        <div class="client-metric">
-            <h4>📊 Állapot</h4>
-            <p><strong>{selected_project.get('status', 'Ismeretlen')}</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric("📊 Állapot", selected_project.get('status', 'Ismeretlen'))
     
     with col2:
-        st.markdown(f"""
-        <div class="client-metric">
-            <h4>📅 Kezdés</h4>
-            <p><strong>{selected_project.get('start', '-')}</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric("📅 Kezdés", selected_project.get('start', '-'))
     
     with col3:
-        st.markdown(f"""
-        <div class="client-metric">
-            <h4>🎯 Befejezés</h4>
-            <p><strong>{selected_project.get('end', '-')}</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric("🎯 Befejezés", selected_project.get('end', '-'))
     
     with col4:
-        st.markdown(f"""
-        <div class="client-metric">
-            <h4>📍 Helyszín</h4>
-            <p><strong>{', '.join(selected_project.get('locations', ['Nincs megadva']))}</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric("📍 Helyszín", ', '.join(selected_project.get('locations', ['Nincs megadva'])))
 
     # Overall progress
     st.markdown("### 📈 Teljes haladás")
@@ -226,43 +206,41 @@ if selected_project:
             </div>
             """, unsafe_allow_html=True)
     
-    # Show all phases summary
+    # Show all phases summary using expanders
     st.markdown("### 📋 Összes fázis áttekintése")
-    phases_summary_cols = st.columns(4)
     
     for pi, phase in enumerate(phases_def):
-        col_index = pi % 4
-        with phases_summary_cols[col_index]:
-            phase_total = len(phase["tasks"])
-            phase_done = sum(1 for v in selected_project["phases_checked"][pi] if v) if pi < len(selected_project["phases_checked"]) else 0
-            phase_progress = int(phase_done * 100 / phase_total) if phase_total else 0
-            
-            # Determine phase status
-            if pi < current_phase_index:
-                status_icon = "✅"
-                status_class = "phase-success"
-            elif pi == current_phase_index:
-                status_icon = "🔄"
-                status_class = "phase-warning"
-            else:
-                status_icon = "⏳"
-                status_class = "phase-info"
-            
-            # Calculate total required people for this phase
-            total_required_people = 0
-            for task in phase["tasks"]:
-                if isinstance(task, dict) and "required_people" in task:
-                    total_required_people += task.get("required_people", 0)
-            
-            st.markdown(f"""
-            <div class="phase-card {status_class}">
-                <h5>{status_icon} {phase['name']}</h5>
-                <p><strong>Feladatok:</strong> {phase_done}/{phase_total}</p>
-                <p><strong>Időtartam:</strong> {phase.get('total_duration_days', 0)} nap</p>
-                <p><strong>Szükséges emberek:</strong> {total_required_people} fő</p>
-                <p><strong>Haladás:</strong> {phase_progress}%</p>
-            </div>
-            """, unsafe_allow_html=True)
+        phase_total = len(phase["tasks"])
+        phase_done = sum(1 for v in selected_project["phases_checked"][pi] if v) if pi < len(selected_project["phases_checked"]) else 0
+        phase_progress = int(phase_done * 100 / phase_total) if phase_total else 0
+        
+        # Determine phase status
+        if pi < current_phase_index:
+            status_icon = "✅"
+            status_text = "Befejezve"
+        elif pi == current_phase_index:
+            status_icon = "🔄"
+            status_text = "Folyamatban"
+        else:
+            status_icon = "⏳"
+            status_text = "Várakozás"
+        
+        # Calculate total required people for this phase
+        total_required_people = 0
+        for task in phase["tasks"]:
+            if isinstance(task, dict) and "required_people" in task:
+                total_required_people += task.get("required_people", 0)
+        
+        with st.expander(f"{status_icon} {phase['name']} - {status_text}", expanded=(pi == current_phase_index)):
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Feladatok", f"{phase_done}/{phase_total}")
+            with col2:
+                st.metric("Időtartam", f"{phase.get('total_duration_days', 0)} nap")
+            with col3:
+                st.metric("Szükséges emberek", f"{total_required_people} fő")
+            with col4:
+                st.metric("Haladás", f"{phase_progress}%")
 
     # Project timeline summary
     st.markdown("### ⏱️ Projekt időtartam összefoglalás")
@@ -297,36 +275,16 @@ if selected_project:
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.markdown(f"""
-        <div class="client-metric">
-            <h4>📊 Teljes projekt</h4>
-            <p><strong>{total_project_days} nap</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric("📊 Teljes projekt", f"{total_project_days} nap")
     
     with col2:
-        st.markdown(f"""
-        <div class="client-metric">
-            <h4>✅ Teljesített</h4>
-            <p><strong>{completed_phases_days} nap</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric("✅ Teljesített", f"{completed_phases_days} nap")
     
     with col3:
-        st.markdown(f"""
-        <div class="client-metric">
-            <h4>⏳ Hátralévő</h4>
-            <p><strong>{remaining_days} nap</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric("⏳ Hátralévő", f"{remaining_days} nap")
     
     with col4:
-        st.markdown(f"""
-        <div class="client-metric">
-            <h4>👥 Szükséges emberek</h4>
-            <p><strong>{total_required_people} fő</strong></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric("👥 Szükséges emberek", f"{total_required_people} fő")
     
     # Estimated completion information
     try:
