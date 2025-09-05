@@ -42,7 +42,7 @@ else:
         project = st.session_state.projects[project_index]
         
         # Header with project info
-        col1, col2, col3 = st.columns([2, 1, 1])
+        col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
         
         with col1:
             st.subheader(f"📋 {project.get('name', 'Névtelen projekt')}")
@@ -54,6 +54,12 @@ else:
                 st.rerun()
         
         with col3:
+            if st.button("👁️ Ügyfél nézet", key="client_view", help="Ügyfél nézet megnyitása - korlátozott hozzáférés"):
+                # Set the client view to show this specific project
+                st.session_state.client_selected_project_index = project_index
+                st.switch_page("pages/ClientView.py")
+        
+        with col4:
             if st.button("🔙 Vissza", key="back_to_projects"):
                 st.session_state.selected_project_index = None
                 st.switch_page("pages/Projects.py")
