@@ -262,20 +262,28 @@ else:
                 
                 if involved_projects:
                     st.write(f"Ez az erőforrás **{len(involved_projects)}** projektben vesz részt:")
+                    st.write("")  # Add some spacing
                     
-                    for project in involved_projects:
-                        with st.expander(f"📁 {project.get('name', 'Névtelen projekt')}"):
-                            col1, col2 = st.columns(2)
-                            
-                            with col1:
-                                st.write(f"**Státusz:** {project.get('status', 'Ismeretlen')}")
-                                st.write(f"**Kezdés:** {project.get('start', 'Nincs megadva')}")
-                                st.write(f"**Befejezés:** {project.get('end', 'Nincs megadva')}")
-                            
-                            with col2:
-                                st.write(f"**Helyszín:** {', '.join(project.get('locations', []))}")
-                                st.write(f"**Előrehaladás:** {project.get('progress', 0)}%")
-                                st.write(f"**Típus:** {project.get('type', 'Nincs megadva')}")
+                    # Display projects in columns (2 per row for better space utilization)
+                    for i in range(0, len(involved_projects), 2):
+                        cols = st.columns(2)
+                        
+                        for j, col in enumerate(cols):
+                            if i + j < len(involved_projects):
+                                project = involved_projects[i + j]
+                                project_name = project.get('name', 'Névtelen projekt')
+                                project_status = project.get('status', 'Ismeretlen')
+                                project_progress = project.get('progress', 0)
+                                
+                                # Create a clickable link to project details
+                                with col:
+                                    if st.button(f"📁 {project_name} - {project_status} ({project_progress}%)", 
+                                               key=f"project_link_{i + j}", 
+                                               help=f"Kattints a '{project_name}' projekt részleteinek megtekintéséhez",
+                                               use_container_width=True):
+                                        # Set the selected project and navigate to project details
+                                        st.session_state.selected_project_index = i + j
+                                        st.switch_page("pages/ProjectDetails.py")
                 else:
                     st.info("Ez az erőforrás még nem vett részt egyetlen projektben sem.")
             
