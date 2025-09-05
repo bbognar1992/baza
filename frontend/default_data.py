@@ -5,47 +5,162 @@ from datetime import datetime, timedelta
 def get_default_resources():
     return [
         # Kőművesek
-        {"Típus": "Alkalmazott", "Név": "Kiss János", "Pozíció": "Kőműves"},
-        {"Típus": "Alkalmazott", "Név": "Nagy Péter", "Pozíció": "Kőműves"},
-        {"Típus": "Alkalmazott", "Név": "Szabó László", "Pozíció": "Kőműves"},
+        {
+            "Típus": "Alkalmazott", "Név": "Kiss János", "Pozíció": "Kőműves",
+            "Telefonszám": "+36 20 123 4567", "E-mail": "kiss.janos@epitai.hu",
+            "Cím": "Győr, Széchenyi u. 12.", "Készségek": "Falazat, betonozás, vakolás, csempe ragasztás",
+            "Órabér": 3500, "Elérhetőség": "Elérhető", "Tapasztalat": 8
+        },
+        {
+            "Típus": "Alkalmazott", "Név": "Nagy Péter", "Pozíció": "Kőműves",
+            "Telefonszám": "+36 30 234 5678", "E-mail": "nagy.peter@epitai.hu",
+            "Cím": "Győr, Kossuth L. u. 45.", "Készségek": "Falazat, betonozás, vakolás",
+            "Órabér": 3200, "Elérhetőség": "Elérhető", "Tapasztalat": 5
+        },
+        {
+            "Típus": "Alkalmazott", "Név": "Szabó László", "Pozíció": "Kőműves",
+            "Telefonszám": "+36 70 345 6789", "E-mail": "szabo.laszlo@epitai.hu",
+            "Cím": "Győr, Bartók B. u. 78.", "Készségek": "Falazat, betonozás, vakolás, kőműves munkák",
+            "Órabér": 3800, "Elérhetőség": "Elérhető", "Tapasztalat": 12
+        },
         
         # Villanyszerelők
-        {"Típus": "Alkalmazott", "Név": "Kovács István", "Pozíció": "Villanyszerelő"},
-        {"Típus": "Alkalmazott", "Név": "Tóth Gábor", "Pozíció": "Villanyszerelő"},
+        {
+            "Típus": "Alkalmazott", "Név": "Kovács István", "Pozíció": "Villanyszerelő",
+            "Telefonszám": "+36 20 456 7890", "E-mail": "kovacs.istvan@epitai.hu",
+            "Cím": "Győr, Rákóczi u. 23.", "Készségek": "Villanyszerelés, kapcsolók, csatlakozók, LED világítás",
+            "Órabér": 4200, "Elérhetőség": "Elérhető", "Tapasztalat": 10
+        },
+        {
+            "Típus": "Alkalmazott", "Név": "Tóth Gábor", "Pozíció": "Villanyszerelő",
+            "Telefonszám": "+36 30 567 8901", "E-mail": "toth.gabor@epitai.hu",
+            "Cím": "Győr, Petőfi S. u. 56.", "Készségek": "Villanyszerelés, elektromos hálózatok, biztonsági rendszerek",
+            "Órabér": 4000, "Elérhetőség": "Elérhető", "Tapasztalat": 7
+        },
         
         # Víz-gáz-fűtésszerelők
-        {"Típus": "Alkalmazott", "Név": "Molnár Zoltán", "Pozíció": "Víz-gáz-fűtésszerelő"},
-        {"Típus": "Alkalmazott", "Név": "Horváth Ferenc", "Pozíció": "Víz-gáz-fűtésszerelő"},
+        {
+            "Típus": "Alkalmazott", "Név": "Molnár Zoltán", "Pozíció": "Víz-gáz-fűtésszerelő",
+            "Telefonszám": "+36 70 678 9012", "E-mail": "molnar.zoltan@epitai.hu",
+            "Cím": "Győr, Deák F. u. 89.", "Készségek": "Vízvezetékek, fűtés, szellőztetés, gázszerelés",
+            "Órabér": 4500, "Elérhetőség": "Elérhető", "Tapasztalat": 15
+        },
+        {
+            "Típus": "Alkalmazott", "Név": "Horváth Ferenc", "Pozíció": "Víz-gáz-fűtésszerelő",
+            "Telefonszám": "+36 20 789 0123", "E-mail": "horvath.ferenc@epitai.hu",
+            "Cím": "Győr, Bajcsy-Zs. u. 34.", "Készségek": "Vízvezetékek, fűtés, szellőztetés, klíma telepítés",
+            "Órabér": 4300, "Elérhetőség": "Elérhető", "Tapasztalat": 9
+        },
         
         # Ácsok
-        {"Típus": "Alkalmazott", "Név": "Varga József", "Pozíció": "Ács"},
-        {"Típus": "Alkalmazott", "Név": "Farkas Sándor", "Pozíció": "Ács"},
+        {
+            "Típus": "Alkalmazott", "Név": "Varga József", "Pozíció": "Ács",
+            "Telefonszám": "+36 30 890 1234", "E-mail": "varga.jozsef@epitai.hu",
+            "Cím": "Győr, Szent István u. 67.", "Készségek": "Fa szerkezetek, tetőfedés, bádogos munkák",
+            "Órabér": 4000, "Elérhetőség": "Elérhető", "Tapasztalat": 11
+        },
+        {
+            "Típus": "Alkalmazott", "Név": "Farkas Sándor", "Pozíció": "Ács",
+            "Telefonszám": "+36 70 901 2345", "E-mail": "farkas.sandor@epitai.hu",
+            "Cím": "Győr, Városház u. 12.", "Készségek": "Fa szerkezetek, tetőfedés, ablak-ajtó szerelés",
+            "Órabér": 3800, "Elérhetőség": "Elérhető", "Tapasztalat": 6
+        },
         
         # Burkolók
-        {"Típus": "Alkalmazott", "Név": "Balogh Tamás", "Pozíció": "Burkoló"},
-        {"Típus": "Alkalmazott", "Név": "Papp András", "Pozíció": "Burkoló"},
+        {
+            "Típus": "Alkalmazott", "Név": "Balogh Tamás", "Pozíció": "Burkoló",
+            "Telefonszám": "+36 20 012 3456", "E-mail": "balogh.tamas@epitai.hu",
+            "Cím": "Győr, Széchenyi u. 45.", "Készségek": "Padló, falburkolatok, csempe, parketta",
+            "Órabér": 3600, "Elérhetőség": "Elérhető", "Tapasztalat": 8
+        },
+        {
+            "Típus": "Alkalmazott", "Név": "Papp András", "Pozíció": "Burkoló",
+            "Telefonszám": "+36 30 123 4567", "E-mail": "papp.andras@epitai.hu",
+            "Cím": "Győr, Kossuth L. u. 78.", "Készségek": "Padló, falburkolatok, mozaik, természetes kő",
+            "Órabér": 3700, "Elérhetőség": "Elérhető", "Tapasztalat": 10
+        },
         
         # Festők
-        {"Típus": "Alkalmazott", "Név": "Lakatos Miklós", "Pozíció": "Festő"},
-        {"Típus": "Alkalmazott", "Név": "Takács Róbert", "Pozíció": "Festő"},
+        {
+            "Típus": "Alkalmazott", "Név": "Lakatos Miklós", "Pozíció": "Festő",
+            "Telefonszám": "+36 70 234 5678", "E-mail": "lakatos.miklos@epitai.hu",
+            "Cím": "Győr, Bartók B. u. 23.", "Készségek": "Festés, tapétázás, dekoratív festés, szigetelés",
+            "Órabér": 3000, "Elérhetőség": "Elérhető", "Tapasztalat": 7
+        },
+        {
+            "Típus": "Alkalmazott", "Név": "Takács Róbert", "Pozíció": "Festő",
+            "Telefonszám": "+36 20 345 6789", "E-mail": "takacs.robert@epitai.hu",
+            "Cím": "Győr, Rákóczi u. 56.", "Készségek": "Festés, tapétázás, textúrázás, szigetelés",
+            "Órabér": 3100, "Elérhetőség": "Elérhető", "Tapasztalat": 5
+        },
         
         # Műszaki vezetők
-        {"Típus": "Alkalmazott", "Név": "Kovácsné Anna", "Pozíció": "Műszaki vezető"},
-        {"Típus": "Alkalmazott", "Név": "Nagy Béla", "Pozíció": "Műszaki vezető"},
+        {
+            "Típus": "Alkalmazott", "Név": "Kovácsné Anna", "Pozíció": "Műszaki vezető",
+            "Telefonszám": "+36 30 456 7890", "E-mail": "kovacsne.anna@epitai.hu",
+            "Cím": "Győr, Petőfi S. u. 89.", "Készségek": "Projekt koordináció, minőségbiztosítás, CAD tervezés",
+            "Órabér": 6000, "Elérhetőség": "Elérhető", "Tapasztalat": 12
+        },
+        {
+            "Típus": "Alkalmazott", "Név": "Nagy Béla", "Pozíció": "Műszaki vezető",
+            "Telefonszám": "+36 70 567 8901", "E-mail": "nagy.bela@epitai.hu",
+            "Cím": "Győr, Deák F. u. 34.", "Készségek": "Projekt koordináció, minőségbiztosítás, statika",
+            "Órabér": 6200, "Elérhetőség": "Elérhető", "Tapasztalat": 15
+        },
         
         # Építésvezetők
-        {"Típus": "Alkalmazott", "Név": "Szűcs Károly", "Pozíció": "Építésvezető"},
+        {
+            "Típus": "Alkalmazott", "Név": "Szűcs Károly", "Pozíció": "Építésvezető",
+            "Telefonszám": "+36 20 678 9012", "E-mail": "szucs.karoly@epitai.hu",
+            "Cím": "Győr, Bajcsy-Zs. u. 67.", "Készségek": "Teljes építkezés irányítása, ügyfélkapcsolatok, engedélyek",
+            "Órabér": 8000, "Elérhetőség": "Elérhető", "Tapasztalat": 20
+        },
         
         # Alvállalkozók
-        {"Típus": "Alvállalkozó", "Név": "Acél Kft.", "Pozíció": "Vasszerkezetek"},
-        {"Típus": "Alvállalkozó", "Név": "FaMester Bt.", "Pozíció": "Fa szerkezetek"},
-        {"Típus": "Alvállalkozó", "Név": "BurkolóPro Kft.", "Pozíció": "Burkolás"},
+        {
+            "Típus": "Alvállalkozó", "Név": "Acél Kft.", "Pozíció": "Vasszerkezetek",
+            "Telefonszám": "+36 96 123 4567", "E-mail": "info@acelkft.hu",
+            "Cím": "Győr, Ipari út 12.", "Készségek": "Vasszerkezetek, acél építmények, hegesztés",
+            "Órabér": 0, "Elérhetőség": "Elérhető", "Tapasztalat": 25
+        },
+        {
+            "Típus": "Alvállalkozó", "Név": "FaMester Bt.", "Pozíció": "Fa szerkezetek",
+            "Telefonszám": "+36 96 234 5678", "E-mail": "info@famester.hu",
+            "Cím": "Győr, Faipari út 45.", "Készségek": "Fa szerkezetek, tetőfedés, belső burkolatok",
+            "Órabér": 0, "Elérhetőség": "Elérhető", "Tapasztalat": 18
+        },
+        {
+            "Típus": "Alvállalkozó", "Név": "BurkolóPro Kft.", "Pozíció": "Burkolás",
+            "Telefonszám": "+36 96 345 6789", "E-mail": "info@burkolopro.hu",
+            "Cím": "Győr, Burkoló út 78.", "Készségek": "Burkolás, csempe, parketta, természetes kő",
+            "Órabér": 0, "Elérhetőség": "Elérhető", "Tapasztalat": 22
+        },
         
         # Beszállítók
-        {"Típus": "Beszállító", "Név": "ÉpAnyag Zrt.", "Pozíció": "Beton, tégla"},
-        {"Típus": "Beszállító", "Név": "FaTrade Kft.", "Pozíció": "Faanyagok"},
-        {"Típus": "Beszállító", "Név": "VillTech Bt.", "Pozíció": "Villanyszerelési anyagok"},
-        {"Típus": "Beszállító", "Név": "GépGURU Kft.", "Pozíció": "Gépek, bérlés"},
+        {
+            "Típus": "Beszállító", "Név": "ÉpAnyag Zrt.", "Pozíció": "Beton, tégla",
+            "Telefonszám": "+36 96 456 7890", "E-mail": "info@epanyag.hu",
+            "Cím": "Győr, Építőanyag út 23.", "Készségek": "Beton, tégla, cement, homok, kavics",
+            "Órabér": 0, "Elérhetőség": "Elérhető", "Tapasztalat": 30
+        },
+        {
+            "Típus": "Beszállító", "Név": "FaTrade Kft.", "Pozíció": "Faanyagok",
+            "Telefonszám": "+36 96 567 8901", "E-mail": "info@fatrade.hu",
+            "Cím": "Győr, Faanyag út 56.", "Készségek": "Faanyagok, deszka, gerenda, parketta",
+            "Órabér": 0, "Elérhetőség": "Elérhető", "Tapasztalat": 20
+        },
+        {
+            "Típus": "Beszállító", "Név": "VillTech Bt.", "Pozíció": "Villanyszerelési anyagok",
+            "Telefonszám": "+36 96 678 9012", "E-mail": "info@villtech.hu",
+            "Cím": "Győr, Villany út 89.", "Készségek": "Villanyszerelési anyagok, kábelek, kapcsolók",
+            "Órabér": 0, "Elérhetőség": "Elérhető", "Tapasztalat": 15
+        },
+        {
+            "Típus": "Beszállító", "Név": "GépGURU Kft.", "Pozíció": "Gépek, bérlés",
+            "Telefonszám": "+36 96 789 0123", "E-mail": "info@gepguru.hu",
+            "Cím": "Győr, Gép út 12.", "Készségek": "Gépek, bérlés, daruk, kotrógépek, betonkeverők",
+            "Órabér": 0, "Elérhetőség": "Elérhető", "Tapasztalat": 12
+        },
     ]
 
 

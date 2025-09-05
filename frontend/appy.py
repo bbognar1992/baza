@@ -12,6 +12,7 @@ pages = {
         st.Page("pages/ClientView.py", title="Ügyfél Nézet"),
         st.Page("pages/utemezes.py", title="Ütemezés"),
         st.Page("pages/Resources.py", title="Erőforrások"),
+        st.Page("pages/ResourceDetails.py", title="Erőforrás Részletek"),
     ],
     "AI Asszisztensek": [
         st.Page("pages/AnyagarAjanlatkeresAI.py", title="Anyagár Ajánlatkérés"),
