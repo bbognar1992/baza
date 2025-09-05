@@ -220,31 +220,69 @@ else:
                 st.subheader("👥 Dolgozók a projekten")
                 members = project.get("members", [])
                 if members:
-                    st.write(", ".join(members))
+                    # Group members by their profession/position
+                    profession_groups = {}
+                    member_details = {}
                     
-                    # Show member details
-                    st.write("### Tagok részletei")
                     for member_name in members:
                         # Find the resource details
                         member_resource = None
-                        for resource in st.session_state.resources:
+                        member_index = None
+                        for idx, resource in enumerate(st.session_state.resources):
                             if resource.get("Név") == member_name:
                                 member_resource = resource
+                                member_index = idx
                                 break
                         
                         if member_resource:
-                            with st.expander(f"👤 {member_name}"):
-                                col1, col2 = st.columns(2)
+                            # Use position as profession, fallback to type if position is empty
+                            profession = member_resource.get('Pozíció', 'Nincs megadva')
+                            if profession == 'Nincs megadva' or not profession.strip():
+                                profession = member_resource.get('Típus', 'Ismeretlen')
+                            
+                            # Group by profession
+                            if profession not in profession_groups:
+                                profession_groups[profession] = []
+                            
+                            profession_groups[profession].append({
+                                'name': member_name,
+                                'resource': member_resource,
+                                'index': member_index
+                            })
+                            member_details[member_name] = {
+                                'resource': member_resource,
+                                'index': member_index
+                            }
+                    
+                    st.write(f"A projekt **{len(members)}** tagot tartalmaz **{len(profession_groups)}** szakmában:")
+                    st.write("")  # Add some spacing
+                    
+                    # Display each profession group in separate panels
+                    for profession, group_members in profession_groups.items():
+                        with st.expander(f"🛠️ {profession} ({len(group_members)} tag)", expanded=True):
+                            # Display members in columns (2 per row for better space utilization)
+                            for i in range(0, len(group_members), 2):
+                                cols = st.columns(2)
                                 
-                                with col1:
-                                    st.write(f"**Pozíció:** {member_resource.get('Pozíció', 'Nincs megadva')}")
-                                    st.write(f"**Típus:** {member_resource.get('Típus', 'Nincs megadva')}")
-                                    st.write(f"**Elérhetőség:** {member_resource.get('Elérhetőség', 'Elérhető')}")
-                                
-                                with col2:
-                                    st.write(f"**Telefonszám:** {member_resource.get('Telefonszám', 'Nincs megadva')}")
-                                    st.write(f"**E-mail:** {member_resource.get('E-mail', 'Nincs megadva')}")
-                                    st.write(f"**Tapasztalat:** {member_resource.get('Tapasztalat', 0)} év")
+                                for j, col in enumerate(cols):
+                                    if i + j < len(group_members):
+                                        member_data = group_members[i + j]
+                                        member_name = member_data['name']
+                                        member_resource = member_data['resource']
+                                        member_index = member_data['index']
+                                        
+                                        # Create a clickable link to resource details
+                                        with col:
+                                            member_type = member_resource.get('Típus', 'Ismeretlen')
+                                            member_availability = member_resource.get('Elérhetőség', 'Elérhető')
+                                            
+                                            if st.button(f"👤 {member_name} - {member_type} ({member_availability})", 
+                                                       key=f"member_link_{profession}_{i + j}", 
+                                                       help=f"Kattints a '{member_name}' erőforrás részleteinek megtekintéséhez",
+                                                       use_container_width=True):
+                                                # Set the selected resource and navigate to resource details
+                                                st.session_state.selected_resource_index = member_index
+                                                st.switch_page("pages/ResourceDetails.py")
                 else:
                     st.info("Nincs hozzárendelt tag a projekthez.")
             

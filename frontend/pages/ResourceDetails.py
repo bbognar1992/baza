@@ -247,7 +247,36 @@ else:
                 st.subheader("Készségek és szakterületek")
                 skills = resource.get("Készségek", "")
                 if skills:
-                    st.write(skills)
+                    # Split skills by common separators and clean them
+                    skill_separators = [',', ';', '\n', '|']
+                    skill_list = [skills]
+                    
+                    for separator in skill_separators:
+                        new_skill_list = []
+                        for skill in skill_list:
+                            new_skill_list.extend([s.strip() for s in skill.split(separator) if s.strip()])
+                        skill_list = new_skill_list
+                    
+                    # Remove duplicates while preserving order
+                    unique_skills = []
+                    for skill in skill_list:
+                        if skill not in unique_skills:
+                            unique_skills.append(skill)
+                    
+                    if unique_skills:
+                        st.write(f"**{len(unique_skills)}** szakma/készség:")
+                        st.write("")  # Add some spacing
+                        
+                        # Display skills in columns (2 per row for better space utilization)
+                        for i in range(0, len(unique_skills), 2):
+                            cols = st.columns(2)
+                            
+                            for j, col in enumerate(cols):
+                                if i + j < len(unique_skills):
+                                    skill = unique_skills[i + j]
+                                    
+                                    with col:
+                                        st.info(f"🛠️ {skill}")
                 else:
                     st.info("Nincsenek megadva készségek.")
             
