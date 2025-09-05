@@ -143,7 +143,7 @@ if selected_project:
     if current_phase_index == -1:
         current_phase_index = len(phases_def) - 1
     
-    # Show current phase
+    # Show current phase in expander
     if 0 <= current_phase_index < len(phases_def):
         phase = phases_def[current_phase_index]
         phase_total = len(phase["tasks"])
@@ -162,76 +162,10 @@ if selected_project:
             if isinstance(task, dict) and "required_people" in task:
                 total_required_people += task.get("required_people", 0)
         
-        st.markdown(f"""
-        <div class="phase-card">
-            <h4>🎯 Aktuális fázis: {current_phase_index+1}. {phase['name']}</h4>
-            <p><strong>Haladás:</strong> {phase_done}/{phase_total} feladat kész</p>
-            <p><strong>Teljes időtartam:</strong> {phase.get('total_duration_days', 0)} nap</p>
-            <p><strong>Időbeli haladás:</strong> {current_phase_days} / {phase.get('total_duration_days', 0)} nap</p>
-            <p><strong>Szükséges emberek:</strong> {total_required_people} fő</p>
-        """, unsafe_allow_html=True)
-        
-        # Time-based progress bar
+        # Time-based progress calculation
         time_progress = int(current_phase_days * 100 / phase.get('total_duration_days', 1)) if phase.get('total_duration_days', 1) > 0 else 0
-        st.progress(time_progress / 100)
-        st.markdown(f"<p style='text-align: center; color: #666;'><strong>Időbeli haladás: {time_progress}%</strong></p>", unsafe_allow_html=True)
         
-        # Show tasks in a simplified way
-        for ti, task in enumerate(phase["tasks"]):
-            is_completed = selected_project["phases_checked"][current_phase_index][ti] if current_phase_index < len(selected_project["phases_checked"]) and ti < len(selected_project["phases_checked"][current_phase_index]) else False
-            
-            # Handle both old string format and new object format
-            if isinstance(task, str):
-                task_name = task
-                task_duration = "N/A"
-                required_people = "N/A"
-            else:
-                task_name = task.get("name", "Unknown task")
-                task_duration = task.get("duration_days", "N/A")
-                required_people = task.get("required_people", "N/A")
-                if isinstance(task_duration, int):
-                    task_duration = f"{task_duration} nap"
-                if isinstance(required_people, int):
-                    required_people = f"{required_people} fő"
-            
-            status_icon = "✅" if is_completed else "⏳"
-            css_class = "task-completed" if is_completed else "task-pending"
-            
-            st.markdown(f"""
-            <div class="task-item {css_class}">
-                {status_icon} {task_name} 
-                <span style="float: right; color: #666; font-size: 0.9em;">
-                    ⏱️ {task_duration} | 👥 {required_people}
-                </span>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    # Show all phases summary using expanders
-    st.markdown("### 📋 Összes fázis áttekintése")
-    
-    for pi, phase in enumerate(phases_def):
-        phase_total = len(phase["tasks"])
-        phase_done = sum(1 for v in selected_project["phases_checked"][pi] if v) if pi < len(selected_project["phases_checked"]) else 0
-        phase_progress = int(phase_done * 100 / phase_total) if phase_total else 0
-        
-        # Determine phase status
-        if pi < current_phase_index:
-            status_icon = "✅"
-            status_text = "Befejezve"
-        elif pi == current_phase_index:
-            status_icon = "🔄"
-            status_text = "Folyamatban"
-        else:
-            status_icon = "⏳"
-            status_text = "Várakozás"
-        
-        # Calculate total required people for this phase
-        total_required_people = 0
-        for task in phase["tasks"]:
-            if isinstance(task, dict) and "required_people" in task:
-                total_required_people += task.get("required_people", 0)
-        
-        with st.expander(f"{status_icon} {phase['name']} - {status_text}", expanded=(pi == current_phase_index)):
+        with st.expander(f"🔄 {phase['name']} - Folyamatban", expanded=True):
             col1, col2, col3, col4 = st.columns(4)
             with col1:
                 st.metric("Feladatok", f"{phase_done}/{phase_total}")
@@ -241,7 +175,42 @@ if selected_project:
                 st.metric("Szükséges emberek", f"{total_required_people} fő")
             with col4:
                 st.metric("Haladás", f"{phase_progress}%")
-
+            
+            # Time-based progress bar
+            st.progress(time_progress / 100)
+            st.markdown(f"<p style='text-align: center; color: #666;'><strong>Időbeli haladás: {time_progress}%</strong></p>", unsafe_allow_html=True)
+            
+            # Show tasks in a simplified way
+            st.markdown("**Feladatok:**")
+            for ti, task in enumerate(phase["tasks"]):
+                is_completed = selected_project["phases_checked"][current_phase_index][ti] if current_phase_index < len(selected_project["phases_checked"]) and ti < len(selected_project["phases_checked"][current_phase_index]) else False
+                
+                # Handle both old string format and new object format
+                if isinstance(task, str):
+                    task_name = task
+                    task_duration = "N/A"
+                    required_people = "N/A"
+                else:
+                    task_name = task.get("name", "Unknown task")
+                    task_duration = task.get("duration_days", "N/A")
+                    required_people = task.get("required_people", "N/A")
+                    if isinstance(task_duration, int):
+                        task_duration = f"{task_duration} nap"
+                    if isinstance(required_people, int):
+                        required_people = f"{required_people} fő"
+                
+                status_icon = "✅" if is_completed else "⏳"
+                css_class = "task-completed" if is_completed else "task-pending"
+                
+                st.markdown(f"""
+                <div class="task-item {css_class}">
+                    {status_icon} {task_name} 
+                    <span style="float: right; color: #666; font-size: 0.9em;">
+                        ⏱️ {task_duration} | 👥 {required_people}
+                    </span>
+                </div>
+                """, unsafe_allow_html=True)
+    
     # Project timeline summary
     st.markdown("### ⏱️ Projekt időtartam összefoglalás")
     
