@@ -8,8 +8,6 @@ def render_sidebar_navigation():
 
     st.sidebar.markdown("### 📁 Projektmenedzsment")
     st.sidebar.page_link('pages/Home.py', label='🏠 Főoldal')
-    st.sidebar.page_link('pages/ProjectTab.py', label='📁 Projekt Dashboard')
-    st.sidebar.page_link('pages/ResourceTab.py', label='👥 Erőforrás Dashboard')
     st.sidebar.page_link('pages/Projects.py', label='📁 Projektek')
     st.sidebar.page_link('pages/Resources.py', label='👥 Erőforrások')
     st.sidebar.page_link('pages/utemezes.py', label='📊 Ütemezés')
