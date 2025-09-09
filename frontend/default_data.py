@@ -1,5 +1,14 @@
 import random
+import secrets
+import string
 from datetime import datetime, timedelta
+
+
+def generate_project_id():
+    """Generate a unique, long project ID for shareable URLs"""
+    # Generate a 32-character random string with letters and numbers
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(32))
 
 
 def get_default_resources():
@@ -304,6 +313,7 @@ def seed_projects_if_empty(st):
         "progress": 25,
         "phases_checked": phases_checked_template,
         "type": seed_type,
+        "project_id": generate_project_id(),
     })
     cities = ["Győr", "Budapest", "Debrecen", "Szeged", "Pécs", "Miskolc", "Veszprém"]
     statuses = ["Tervezés alatt", "Folyamatban", "Késésben", "Lezárt"]
