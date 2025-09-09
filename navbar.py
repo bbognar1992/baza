@@ -7,18 +7,18 @@ def render_sidebar_navigation():
     st.sidebar.title("🏗️ ÉpítAI")
 
     st.sidebar.markdown("### 📁 Projektmenedzsment")
-    st.sidebar.page_link('pages/Home.py', label='🏠 Főoldal')
-    st.sidebar.page_link('pages/Projects.py', label='📁 Projektek')
-    st.sidebar.page_link('pages/Resources.py', label='👥 Erőforrások')
-    st.sidebar.page_link('pages/utemezes.py', label='📊 Ütemezés')
+    st.sidebar.page_link('pages/Home.py', label='Főoldal')
+    st.sidebar.page_link('pages/Projects.py', label='Projektek')
+    st.sidebar.page_link('pages/Resources.py', label='Erőforrások')
+    st.sidebar.page_link('pages/utemezes.py', label='Ütemezés')
 
     st.sidebar.markdown("### 🤖 AI Asszisztensek")
-    st.sidebar.page_link('pages/AnyagarAjanlatkeresAI.py', label='🤖 AI Ajánlatkérés')
-    st.sidebar.page_link('pages/SzerzodeskeszitesAI.py', label='📝 AI Szerződés')
+    st.sidebar.page_link('pages/AnyagarAjanlatkeresAI.py', label='AI Ajánlatkérés')
+    st.sidebar.page_link('pages/SzerzodeskeszitesAI.py', label='AI Szerződés')
 
     st.sidebar.markdown("### ⚙️ Beállítások")
-    st.sidebar.page_link('pages/ProfessionTypes.py', label='🛠️ Szakmák')
-    st.sidebar.page_link('pages/ProjektTipusok.py', label='📋 Projekt Típusok')
+    st.sidebar.page_link('pages/ProfessionTypes.py', label='Szakmák')
+    st.sidebar.page_link('pages/ProjektTipusok.py', label='Projekt Típusok')
 
 def render_navbar():
     """Render a simple header without navigation"""
