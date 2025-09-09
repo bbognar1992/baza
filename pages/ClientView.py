@@ -3,15 +3,15 @@ import requests
 from datetime import datetime, timedelta
 import plotly.express as px
 from default_data import get_default_phases, ensure_base_session_state
-from navbar import render_navbar, set_current_page
+from navbar import render_sidebar_navigation
 
 st.set_page_config(page_title="Ügyfél Nézet – ÉpítAI", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)
 
-# Set current page for navbar highlighting
-set_current_page("Ügyfél Nézet")
+# Render sidebar navigation
+render_sidebar_navigation()
 
 # Custom CSS for client view styling
 st.markdown("""

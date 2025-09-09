@@ -2,14 +2,14 @@ import streamlit as st
 from default_data import ensure_base_session_state
 import pandas as pd
 from datetime import datetime, timedelta
-from navbar import render_navbar, set_current_page
+from navbar import render_sidebar_navigation
 
 st.set_page_config(page_title="Resource Details – ÉpítAI", layout="wide")
 
 ensure_base_session_state(st)
 
-# Set current page for navbar highlighting
-set_current_page("Erőforrás Részletek")
+# Render sidebar navigation
+render_sidebar_navigation()
 
 st.title("👤 Erőforrás Részletek")
 

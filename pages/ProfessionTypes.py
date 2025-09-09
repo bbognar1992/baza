@@ -1,14 +1,14 @@
 import streamlit as st
 from default_data import ensure_base_session_state, get_default_profession_types
-from navbar import render_navbar, set_current_page
+from navbar import render_sidebar_navigation
 
 st.set_page_config(page_title="Szakma típusok – ÉpítAI", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)
 
-# Set current page for navbar highlighting
-set_current_page("Szakmák")
+# Render sidebar navigation
+render_sidebar_navigation()
 
 st.title("🔧 Szakma típusok")
 st.write("Hozz létre és kezeld a szakma típusokat.")

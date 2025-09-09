@@ -1,5 +1,25 @@
 import streamlit as st
 
+def render_sidebar_navigation():
+    """Render the sidebar navigation that matches the main app"""
+    
+    # Sidebar navigation
+    st.sidebar.title("🏗️ ÉpítAI")
+
+    st.sidebar.markdown("### 📁 Projektmenedzsment")
+    st.sidebar.page_link('pages/Home.py', label='🏠 Dashboard')
+    st.sidebar.page_link('pages/Projects.py', label='📁 Projektek')
+    st.sidebar.page_link('pages/Resources.py', label='👥 Erőforrások')
+    st.sidebar.page_link('pages/utemezes.py', label='📊 Ütemezés')
+
+    st.sidebar.markdown("### 🤖 AI Asszisztensek")
+    st.sidebar.page_link('pages/AnyagarAjanlatkeresAI.py', label='🤖 AI Ajánlatkérés')
+    st.sidebar.page_link('pages/SzerzodeskeszitesAI.py', label='📝 AI Szerződés')
+
+    st.sidebar.markdown("### ⚙️ Beállítások")
+    st.sidebar.page_link('pages/ProfessionTypes.py', label='🛠️ Szakmák')
+    st.sidebar.page_link('pages/ProjektTipusok.py', label='📋 Projekt Típusok')
+
 def render_navbar():
     """Render a simple header without navigation"""
     
@@ -10,7 +30,7 @@ def render_navbar():
 
         with col1:
             if st.button("🏠 Dashboard", use_container_width=True, key="navbar_dashboard_btn"):
-                st.switch_page("Home.py")
+                st.switch_page("pages/Home.py")
 
         with col2:
             if st.button("📁 Projektek", use_container_width=True, key="navbar_projects_btn"):

@@ -1,15 +1,15 @@
 import streamlit as st
 from datetime import date
 from default_data import ensure_base_session_state
-from navbar import render_navbar, set_current_page
+from navbar import render_sidebar_navigation
 
 st.set_page_config(page_title="Anyagár ajánlatkérés AI-val – ÉpítAI", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)
 
-# Set current page for navbar highlighting
-set_current_page("Anyagár Ajánlatkérés")
+# Render sidebar navigation
+render_sidebar_navigation()
 
 st.title("🧠 Anyagár ajánlatkérés AI-val")
 
