@@ -1,8 +1,18 @@
 import streamlit as st
 from default_data import ensure_base_session_state
 
+# Configure page
+st.set_page_config(
+    page_title="ÉpítAI",
+    page_icon="🏗️",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# Initialize session state
 ensure_base_session_state(st)
 
+# Use Streamlit's navigation but with hidden sidebar
 pages = {
     "Projektmenedzsment": [
         st.Page("Home.py", title="Dashboard"),

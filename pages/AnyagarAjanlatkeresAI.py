@@ -1,14 +1,19 @@
 import streamlit as st
 from datetime import date
 from default_data import ensure_base_session_state
+from navbar import render_navbar, set_current_page
 
 st.set_page_config(page_title="Anyagár ajánlatkérés AI-val – ÉpítAI", layout="wide")
+
+# Initialize session state
+ensure_base_session_state(st)
+
+# Set current page for navbar highlighting
+set_current_page("Anyagár Ajánlatkérés")
 
 st.title("🧠 Anyagár ajánlatkérés AI-val")
 
 st.write("Készíts gyorsan, egységes formátumú ajánlatkérő e-maileket a beszállítóknak.")
-
-ensure_base_session_state(st)
 
 suppliers = [r for r in st.session_state.resources if r.get("Típus") == "Beszállító"]
 supplier_names = [s.get("Név", "") for s in suppliers if s.get("Név")]

@@ -4,8 +4,15 @@ import pandas as pd
 import random
 from datetime import date, timedelta
 from default_data import ensure_base_session_state, get_default_phases
+from navbar import render_navbar, set_current_page
 
 st.set_page_config(page_title="Időjárás alapú ütemezés – ÉpítAI", layout="wide")
+
+# Initialize session state
+ensure_base_session_state(st)
+
+# Set current page for navbar highlighting
+set_current_page("Ütemezés")
 
 st.title("🌤️ Időjárás alapú ütemezés")
 

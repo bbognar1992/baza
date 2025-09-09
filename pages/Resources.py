@@ -1,13 +1,18 @@
 import streamlit as st
 from default_data import ensure_base_session_state
+from navbar import render_navbar, set_current_page
 
 st.set_page_config(page_title="Resources – ÉpítAI", layout="wide")
+
+# Initialize session state
+ensure_base_session_state(st)
+
+# Set current page for navbar highlighting
+set_current_page("Erőforrások")
 
 st.title("🛠️ Erőforrások")
 
 st.write("Itt tudod kezelni az alkalmazottakat és az alvállalkozókat.")
-
-ensure_base_session_state(st)
 
 with st.expander("➕ Új erőforrás"):
     resource_type = st.selectbox(

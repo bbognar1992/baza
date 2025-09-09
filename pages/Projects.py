@@ -1,13 +1,18 @@
 import streamlit as st
 from default_data import ensure_base_session_state
+from navbar import render_navbar, set_current_page
 
 st.set_page_config(page_title="Projects – ÉpítAI", layout="wide")
+
+# Initialize session state
+ensure_base_session_state(st)
+
+# Set current page for navbar highlighting
+set_current_page("Projektek")
 
 st.title("📁 Projektek")
 
 st.write("Itt tudod kezelni az aktuális projekteket.")
-
-ensure_base_session_state(st)
 
 # Show creation form and list
 with st.expander("➕ Új projekt", expanded=False):

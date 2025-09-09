@@ -3,10 +3,14 @@ import requests
 from datetime import datetime, timedelta
 import plotly.express as px
 from default_data import get_default_phases, ensure_base_session_state
+from navbar import render_navbar, set_current_page
 
 st.set_page_config(page_title="Project Details – ÉpítAI", layout="wide")
 
 ensure_base_session_state(st)
+
+# Set current page for navbar highlighting
+set_current_page("Projekt Részletek")
 
 st.title("📁 Projekt Részletek")
 

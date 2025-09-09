@@ -4,14 +4,17 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import pandas as pd
 from default_data import ensure_base_session_state
+from navbar import render_navbar, set_current_page
 
 st.set_page_config(page_title="ÉpítAI Dashboard", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)
 
-st.title("🏗️ ÉpítAI Dashboard")
-st.markdown("---")
+# Set current page for navbar highlighting
+set_current_page("Dashboard")
+
+st.title("Dashboard")
 
 # Calculate key metrics
 projects = st.session_state.projects
@@ -260,19 +263,19 @@ st.subheader("🚀 Gyors műveletek")
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    if st.button("➕ Új projekt", use_container_width=True):
+    if st.button("➕ Új projekt", use_container_width=True, key="quickaction_new_project"):
         st.switch_page("pages/Projects.py")
 
 with col2:
-    if st.button("📁 Projektek", use_container_width=True):
+    if st.button("📁 Projektek", use_container_width=True, key="quickaction_projects"):
         st.switch_page("pages/Projects.py")
 
 with col3:
-    if st.button("👥 Erőforrások", use_container_width=True):
+    if st.button("👥 Erőforrások", use_container_width=True, key="quickaction_resources"):
         st.switch_page("pages/Resources.py")
 
 with col4:
-    if st.button("📊 Ütemezés", use_container_width=True):
+    if st.button("📊 Ütemezés", use_container_width=True, key="quickaction_schedule"):
         st.switch_page("pages/utemezes.py")
 
 st.markdown("---")
