@@ -3,8 +3,14 @@ import streamlit as st
 def render_sidebar_navigation():
     """Render the sidebar navigation that matches the main app"""
     
-    # Sidebar navigation
-    st.sidebar.title("🏗️ ÉpítAI")
+    # Profile picture placeholder (you can replace with actual image)
+    col1, col2, col3 = st.sidebar.columns([3, 2, 1])
+    with col2:
+        st.sidebar.image("assets/profile.png", width=80)
+    
+    # User name (you can make this dynamic based on session state)
+    st.sidebar.markdown("**Admin User**")
+    st.sidebar.markdown("*Építésvezető*")
 
     st.sidebar.markdown("### 📁 Projektmenedzsment")
     st.sidebar.page_link('pages/Home.py', label='Főoldal')
