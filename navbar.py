@@ -1,17 +1,31 @@
 import streamlit as st
+import base64
+from PIL import Image
+import io
+
+def create_user_profile_html(name, company, avatar_size=48):
+    """Create HTML string for user profile with avatar and company info"""
+    user_avatar = f"https://ui-avatars.com/api/?name={name.replace(' ', '+')}&background=0D8ABC&color=fff&size={avatar_size * 2}"
+    
+    html_string = f"""
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+        <img src="{user_avatar}" alt="Avatar" style="border-radius: 50%; width:{avatar_size}px; height:{avatar_size}px; border:2px solid #0D8ABC;">
+        <div>
+            <div style="font-weight:600; font-size:1.1rem; color:#0D8ABC;">{name}</div>
+            <div style="font-size:0.95rem; color:#888;">{company}</div>
+        </div>
+    </div>
+    """
+    return html_string
 
 def render_sidebar_navigation():
     """Render the sidebar navigation that matches the main app"""
     
-    # Profile picture placeholder (you can replace with actual image)
-    col1, col2, col3 = st.sidebar.columns([3, 2, 1])
-    with col2:
-        st.sidebar.image("assets/profile.png", width=80)
-    
-    # User name (you can make this dynamic based on session state)
-    st.sidebar.markdown("**Admin User**")
-    st.sidebar.markdown("*Építésvezető*")
-
+    # User info
+    st.sidebar.markdown(
+        create_user_profile_html("Nagy Péter", "NagyBau KFT."),
+        unsafe_allow_html=True
+    )
     st.sidebar.markdown("### 📁 Projektmenedzsment")
     st.sidebar.page_link('pages/Home.py', label='Főoldal')
     st.sidebar.page_link('pages/Projects.py', label='Projektek')
