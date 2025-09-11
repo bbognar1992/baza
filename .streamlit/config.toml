@@ -1,2 +1,14 @@
 [client]
 showSidebarNavigation = false
+
+[theme]
+# Modern Sky Theme
+primaryColor = "#4A90E2"
+backgroundColor = "#E3F2FD"
+secondaryBackgroundColor = "#BBDEFB"
+textColor = "#1565C0"
+
+# Font settings
+font = "sans serif"
+base = "light"
+
