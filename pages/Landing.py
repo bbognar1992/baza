@@ -226,17 +226,12 @@ def show_project_insights():
 
 def landing_page():
     """Landing page for logged out users"""
+    
     with st.container():
         # Center the content using columns
         col1, col2, col3 = st.columns([1, 2, 1])
 
         with col2:
-            # Header section
-            st.markdown("## 🏗️ ÉpítAI")
-            st.markdown("### Construction Management System")
-            
-            st.markdown("---")
-            
             # Welcome message
             st.markdown("""
             ### Üdvözöljük az ÉpítAI rendszerben!
@@ -252,37 +247,21 @@ def landing_page():
             """)
             
             # Login button
-            st.markdown("---")
+            st.divider()
             col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
             with col_btn2:
                 if st.button("🔐 Bejelentkezés", use_container_width=True, type="primary"):
                     st.switch_page("pages/Login.py")
-            
-            # Additional info
-            st.markdown("---")
-            with st.expander("💡 Bejelentkezési információk", expanded=False):
-                st.info("**Tesztelési adatok:**")
-                st.code("Felhasználónév: admin\nJelszó: admin")
-                st.markdown("Használja ezeket az adatokat a rendszer teszteléséhez.")
+
             
             # Footer
-            st.markdown("---")
-            col_footer1, col_footer2, col_footer3 = st.columns(3)
-            with col_footer2:
-                st.caption("© 2024 ÉpítAI - Construction Management System")
+            st.divider()
+            st.markdown("<div style='text-align: center;'>© 2025 ÉpítAI - Construction Management System</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     # Check if user is logged in
     is_logged_in = st.session_state.get("user_logged_in", False)
     has_projects = len(st.session_state.get("projects", [])) > 0
-    
-    if is_logged_in or has_projects:
-        # User is logged in, show project insights
-        # Ensure login state is set
-        st.session_state.user_logged_in = True
-        st.markdown("# 🏗️ ÉpítAI - Projekt Menedzsment Rendszer")
-        st.markdown("---")
-        show_project_insights()
-    else:
-        # User is not logged in, show landing page
-        landing_page()
+
+    # User is not logged in, show landing page
+    landing_page()
