@@ -45,38 +45,6 @@ def render_sidebar_navigation():
     if st.sidebar.button("🚪 Kijelentkezés", use_container_width=True, key="sidebar_logout"):
         logout_user()
 
-def render_navbar():
-    """Render a simple header without navigation"""
-    
-    # Simple header with just the brand
-    with st.container():
-        col_title, col_logout = st.columns([4, 1])
-        
-        with col_title:
-            st.markdown("### 🏗️ ÉpítAI")
-        
-        with col_logout:
-            if st.button("🚪 Kijelentkezés", use_container_width=True, key="navbar_logout_btn"):
-                logout_user()
-        
-        col1, col2, col3, col4 = st.columns(4)
-
-        with col1:
-            if st.button("🏠 Dashboard", use_container_width=True, key="navbar_dashboard_btn"):
-                st.switch_page("pages/Home.py")
-
-        with col2:
-            if st.button("📁 Projektek", use_container_width=True, key="navbar_projects_btn"):
-                st.switch_page("pages/Projects.py")
-
-        with col3:
-            if st.button("👥 Erőforrások", use_container_width=True, key="navbar_resources_btn"):
-                st.switch_page("pages/Resources.py")
-
-        with col4:
-            if st.button("📊 Ütemezés", use_container_width=True, key="navbar_schedule_btn"):
-                st.switch_page("pages/utemezes.py")
-
 def logout_user():
     """Clear session state and redirect to landing page"""
     # Clear all session state except for default data
