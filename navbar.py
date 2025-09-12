@@ -39,13 +39,26 @@ def render_sidebar_navigation():
     st.sidebar.markdown("### ⚙️ Beállítások")
     st.sidebar.page_link('pages/ProfessionTypes.py', label='Szakmák')
     st.sidebar.page_link('pages/ProjektTipusok.py', label='Projekt Típusok')
+    
+    # Logout section
+    st.sidebar.markdown("---")
+    if st.sidebar.button("🚪 Kijelentkezés", use_container_width=True, key="sidebar_logout"):
+        logout_user()
 
 def render_navbar():
     """Render a simple header without navigation"""
     
     # Simple header with just the brand
     with st.container():
-        st.markdown("### 🏗️ ÉpítAI")
+        col_title, col_logout = st.columns([4, 1])
+        
+        with col_title:
+            st.markdown("### 🏗️ ÉpítAI")
+        
+        with col_logout:
+            if st.button("🚪 Kijelentkezés", use_container_width=True, key="navbar_logout_btn"):
+                logout_user()
+        
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
@@ -63,6 +76,22 @@ def render_navbar():
         with col4:
             if st.button("📊 Ütemezés", use_container_width=True, key="navbar_schedule_btn"):
                 st.switch_page("pages/utemezes.py")
+
+def logout_user():
+    """Clear session state and redirect to root page"""
+    # Clear all session state except for default data
+    for key in list(st.session_state.keys()):
+        if key not in ["user_logged_in"]:  # Keep default data
+            del st.session_state[key]
+
+    st.session_state.user_logged_in = False
+    # Redirect to root page (appy.py)
+    st.switch_page("appy.py")
+
+def handle_user_not_logged_in():
+    """Handle user not logged in"""
+    if not st.session_state.get("user_logged_in", False):
+        st.switch_page("appy.py")
 
 def set_current_page(page_name):
     """Set the current page name for navbar highlighting"""

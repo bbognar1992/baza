@@ -4,12 +4,15 @@ import pandas as pd
 import random
 from datetime import date, timedelta
 from default_data import ensure_base_session_state, get_default_phases
-from navbar import render_sidebar_navigation
+from navbar import render_sidebar_navigation, handle_user_not_logged_in
 
 st.set_page_config(page_title="Időjárás alapú ütemezés – ÉpítAI", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)
+
+# Check if user is logged in
+handle_user_not_logged_in()
 
 # Render sidebar navigation
 render_sidebar_navigation()

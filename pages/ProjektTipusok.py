@@ -1,6 +1,6 @@
 import streamlit as st
 from default_data import get_default_phases, ensure_base_session_state, get_default_project_types, update_phase_durations, calculate_total_project_duration
-from navbar import render_sidebar_navigation
+from navbar import render_sidebar_navigation, handle_user_not_logged_in
 
 # Profession types are now handled by ensure_base_session_state
 
@@ -8,6 +8,9 @@ st.set_page_config(page_title="Projekt típusok – ÉpítAI", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)
+
+# Check if user is logged in
+handle_user_not_logged_in()
 
 # Render sidebar navigation
 render_sidebar_navigation()
