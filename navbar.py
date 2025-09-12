@@ -78,20 +78,20 @@ def render_navbar():
                 st.switch_page("pages/utemezes.py")
 
 def logout_user():
-    """Clear session state and redirect to root page"""
+    """Clear session state and redirect to landing page"""
     # Clear all session state except for default data
     for key in list(st.session_state.keys()):
-        if key not in ["user_logged_in"]:  # Keep default data
+        if key not in ["resources", "profession_types", "project_types"]:  # Keep default data
             del st.session_state[key]
 
     st.session_state.user_logged_in = False
-    # Redirect to root page (appy.py)
-    st.switch_page("appy.py")
+    # Redirect to landing page
+    st.switch_page("pages/Landing.py")
 
 def handle_user_not_logged_in():
     """Handle user not logged in"""
     if not st.session_state.get("user_logged_in", False):
-        st.switch_page("appy.py")
+        st.switch_page("pages/Login.py")
 
 def set_current_page(page_name):
     """Set the current page name for navbar highlighting"""
