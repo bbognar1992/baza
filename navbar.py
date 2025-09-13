@@ -42,19 +42,13 @@ def render_sidebar_navigation():
     
     # Logout section
     st.sidebar.markdown("---")
-    if st.sidebar.button("🚪 Kijelentkezés", use_container_width=True, key="sidebar_logout"):
+    if st.sidebar.button("Kijelentkezés", use_container_width=True, key="sidebar_logout"):
         logout_user()
 
 def logout_user():
-    """Clear session state and redirect to landing page"""
-    # Clear all session state except for default data
-    for key in list(st.session_state.keys()):
-        if key not in ["resources", "profession_types", "project_types"]:  # Keep default data
-            del st.session_state[key]
-
-    st.session_state.user_logged_in = False
-    # Redirect to landing page
-    st.switch_page("pages/Landing.py")
+    """Redirect to logout page"""
+    # Redirect to logout page (logout page will handle session clearing)
+    st.switch_page("pages/Logout.py")
 
 def handle_user_not_logged_in():
     """Handle user not logged in"""

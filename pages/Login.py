@@ -23,8 +23,7 @@ def login_page():
         col1, col2, col3 = st.columns([1, 2, 1])
 
         with col2:
-            # Header section
-            st.markdown("## 🏗️ ÉpítAI")
+            
             
             # Login form using st.form for better UX
             with st.form("login_form"):
@@ -50,9 +49,9 @@ def login_page():
                 col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
                 with col_btn2:
                     login_btn = st.form_submit_button(
-                        "🚀 Bejelentkezés", 
+                        "Bejelentkezés", 
                         use_container_width=True,
-                        type="primary"
+                        type="secondary"
                     )
                 
                 # Login logic
@@ -68,11 +67,7 @@ def login_page():
             # Additional info section
             st.markdown("---")
             
-            # Info expander
-            with st.expander("💡 Bejelentkezési információk", expanded=False):
-                st.info("**Tesztelési adatok:**")
-                st.code("Felhasználónév: admin\nJelszó: admin")
-                st.markdown("Használja ezeket az adatokat a rendszer teszteléséhez.")
+            st.info("Teszt felhasználó: admin / admin")
             
             # Footer
             st.markdown("---")
