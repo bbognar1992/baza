@@ -1,17 +1,9 @@
 version: '3.9'
 services:
-  backend:
-    build: ./backend
-    container_name: backend
-    ports:
-      - "8000:8000"
-    environment:
-      - OPENAI_API_KEY=IDE_IRD_AZ_API_KEYED
-
-  frontend:
-    build: ./frontend
-    container_name: frontend
+  app:
+    build: .
+    container_name: baza-app
     ports:
       - "8501:8501"
-    depends_on:
-      - backend
+    environment:
+      - OPENAI_API_KEY=IDE_IRD_AZ_API_KEYED

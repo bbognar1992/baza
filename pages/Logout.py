@@ -9,9 +9,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Initialize session state
-ensure_base_session_state(st)
-
 def logout_page():
     """Logout page with goodbye message"""
     with st.container():
