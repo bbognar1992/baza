@@ -27,7 +27,7 @@ def render_sidebar_navigation():
         unsafe_allow_html=True
     )
     st.sidebar.markdown("### 📁 Projektmenedzsment")
-    st.sidebar.page_link('pages/home.py', label='Főoldal')
+    st.sidebar.page_link('pages/home.py', label='Dashboard')
     st.sidebar.page_link('pages/projects.py', label='Projektek')
     st.sidebar.page_link('pages/resources.py', label='Erőforrások')
     st.sidebar.page_link('pages/scheduling.py', label='Ütemezés')
