@@ -1,12 +1,5 @@
 import streamlit as st
 
-# Configure page
-st.set_page_config(
-    page_title="ÉpítAI",
-    page_icon="🏗️",
-    layout="wide"
-)
-
 if __name__ == "__main__":
     # Check if user is already logged in
     is_logged_in = st.session_state.get("user_logged_in", False)
