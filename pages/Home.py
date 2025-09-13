@@ -22,9 +22,7 @@ st.title("Dashboard")
 # Calculate key metrics
 projects = st.session_state.projects
 resources = st.session_state.resources
-
-# Create tabs for better organization
-tab1, tab2, tab3 = st.tabs(["📁 Projekt kapcsolatos", "👥 Erőforrás kapcsolatos", "📅 Heti tervezés"])
+today = datetime.now().date()
 
 # Project status distribution
 status_counts = {}
@@ -34,27 +32,35 @@ for project in projects:
 
 # Progress metrics
 total_projects = len(projects)
-active_projects = len([p for p in projects if p.get("status") in ["Folyamatban", "Késésben"]])
+active_projects = len([p for p in projects if p.get("status") == "Folyamatban"])
 completed_projects = len([p for p in projects if p.get("status") == "Lezárt"])
-planning_projects = len([p for p in projects if p.get("status") == "Tervezés alatt"])
-
-# Average progress
-avg_progress = sum(p.get("progress", 0) for p in projects) / total_projects if total_projects > 0 else 0
+overdue_projects = len([p for p in projects if p.get("status") == "Késésben"])
 
 # Overdue projects (past end date)
-today = datetime.now().date()
-overdue_projects = []
+overdue_projects_list = []
 for project in projects:
     try:
         end_date = datetime.strptime(project.get("end", "2025-12-31"), "%Y-%m-%d").date()
         if end_date < today and project.get("status") not in ["Lezárt"]:
-            overdue_projects.append(project)
+            overdue_projects_list.append(project)
     except:
         pass
 
 # Resource utilization
 total_resources = len(resources)
 available_resources = len([r for r in resources if r.get("Elérhetőség") == "Elérhető"])
+
+# Check for resource overload (working on multiple projects)
+resource_overload = {}
+for resource in resources:
+    if resource.get("Elérhetőség") == "Elérhető":
+        assigned_projects = 0
+        for project in projects:
+            if project.get("status") in ["Folyamatban", "Késésben"]:
+                if resource.get("Név") in project.get("members", []):
+                    assigned_projects += 1
+        if assigned_projects > 1:
+            resource_overload[resource.get("Név", "Névtelen")] = assigned_projects
 
 # Projects by location
 location_counts = {}
@@ -63,54 +69,82 @@ for project in projects:
     for location in locations:
         location_counts[location] = location_counts.get(location, 0) + 1
 
+# Create tabs for better organization
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📊 Projekt státusz", 
+    "👥 Erőforrások", 
+    "💰 Anyag & Költség", 
+    "🌤️ Időjárás", 
+    "🚨 Riasztások"
+])
+
+# Simulate material price changes (in real app, this would come from external API)
+material_price_changes = {
+    "Vasanyag": "+10%",
+    "Beton": "+5%",
+    "Faanyag": "-2%",
+    "Csempe": "+8%"
+}
+
+# Simulate budget deviations
+budget_deviations = {
+    "Projekt A": "+15% (túllépés)",
+    "Projekt B": "-5% (takarékosság)",
+    "Projekt C": "+25% (sürgős figyelem)"
+}
+
+# Simulate weather forecast by project location
+weather_forecast = {
+    "Budapest": ["☀️ 22°C", "⛅ 20°C", "🌧️ 18°C", "☀️ 24°C", "⛅ 21°C", "🌧️ 19°C", "☀️ 23°C"],
+    "Debrecen": ["☀️ 25°C", "☀️ 27°C", "⛅ 23°C", "🌧️ 20°C", "☀️ 26°C", "☀️ 28°C", "⛅ 24°C"],
+    "Szeged": ["⛅ 24°C", "🌧️ 21°C", "🌧️ 19°C", "☀️ 25°C", "⛅ 22°C", "☀️ 26°C", "☀️ 27°C"]
+}
+
+days = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"]
+
 with tab1:
-# Top row - Key metrics
-    st.subheader("📊 Projekt mutatók")
-col1, col2, col3, col4, col5 = st.columns(5)
+    # 1. Projekt státusz összefoglaló
+    st.subheader("📊 Projekt státusz összefoglaló")
+    col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric(
-        label="Összes projekt",
-        value=total_projects,
-        delta=None
+            label="Aktív projektek száma",
+            value=active_projects,
+            delta=f"{active_projects/total_projects*100:.1f}%" if total_projects > 0 else "0%"
     )
 
 with col2:
     st.metric(
-        label="Aktív projektek",
-        value=active_projects,
-        delta=f"{active_projects/total_projects*100:.1f}%" if total_projects > 0 else "0%"
+            label="Befejezett projektek száma",
+            value=completed_projects,
+            delta=f"{completed_projects/total_projects*100:.1f}%" if total_projects > 0 else "0%"
     )
 
 with col3:
     st.metric(
-        label="Lezárt projektek",
-        value=completed_projects,
-        delta=f"{completed_projects/total_projects*100:.1f}%" if total_projects > 0 else "0%"
+            label="Késésben lévő projektek",
+            value=overdue_projects,
+            delta=f"⚠️ {overdue_projects}" if overdue_projects > 0 else "✅ 0"
     )
 
 with col4:
     st.metric(
-        label="Átlagos haladás",
-        value=f"{avg_progress:.1f}%",
+            label="Összes projekt",
+            value=total_projects,
         delta=None
-    )
-
-with col5:
-    st.metric(
-        label="Lejárt projektek",
-        value=len(overdue_projects),
-        delta=f"⚠️ {len(overdue_projects)}" if len(overdue_projects) > 0 else "✅ 0"
     )
 
 st.markdown("---")
 
-# Charts row
-col1, col2 = st.columns(2)
+# Additional project details
+st.subheader("📈 Projekt részletek")
 
-with col1:
-    st.subheader("📈 Projekt státusz eloszlás")
-    if status_counts:
+# Project status distribution chart
+if status_counts:
+    col1, col2 = st.columns(2)
+
+    with col1:
         # Create pie chart
         fig_pie = px.pie(
             values=list(status_counts.values()),
@@ -120,139 +154,60 @@ with col1:
         )
         fig_pie.update_layout(height=400)
         st.plotly_chart(fig_pie, use_container_width=True)
-    else:
-        st.info("Nincs projekt adat megjelenítéshez.")
 
-with col2:
-    st.subheader("🗺️ Projektek helyszín szerint")
-    if location_counts:
-        # Create bar chart
-        locations_df = pd.DataFrame(list(location_counts.items()), columns=['Helyszín', 'Projektek száma'])
-        fig_bar = px.bar(
-            locations_df,
-            x='Helyszín',
-            y='Projektek száma',
-            title="Projektek száma helyszín szerint",
-            color='Projektek száma',
-            color_continuous_scale='Blues'
-        )
-        fig_bar.update_layout(height=400)
-        st.plotly_chart(fig_bar, use_container_width=True)
-    else:
-        st.info("Nincs helyszín adat megjelenítéshez.")
-
-st.markdown("---")
-
-    # Project details
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("⏰ Közelgő határidők")
-    
-    # Upcoming deadlines (next 30 days)
-    upcoming_deadlines = []
-    for project in projects:
-        try:
-            end_date = datetime.strptime(project.get("end", "2025-12-31"), "%Y-%m-%d").date()
-            days_until = (end_date - today).days
-            if 0 <= days_until <= 30 and project.get("status") not in ["Lezárt"]:
-                upcoming_deadlines.append({
-                    'name': project.get('name', 'Névtelen'),
-                    'end_date': end_date,
-                    'days_until': days_until,
-                    'status': project.get('status', 'Ismeretlen')
-                })
-        except:
-            pass
-    
-    if upcoming_deadlines:
-        # Sort by days until deadline
-        upcoming_deadlines.sort(key=lambda x: x['days_until'])
-        
-        for deadline in upcoming_deadlines[:5]:  # Show top 5
-            days = deadline['days_until']
-            if days == 0:
-                color = "🔴"
-                text = "Ma jár le!"
-            elif days <= 7:
-                color = "🟡"
-                text = f"{days} nap múlva"
-            else:
-                color = "🟢"
-                text = f"{days} nap múlva"
-            
-            st.write(f"{color} **{deadline['name']}** - {text}")
-    else:
-        st.info("Nincs közelgő határidő a következő 30 napban.")
-
-with col2:
-    st.subheader("📋 Legutóbbi projektek")
-    
-    # Show recent projects (last 5)
-    recent_projects = sorted(projects, key=lambda x: x.get('start', '2025-01-01'), reverse=True)[:5]
-    
-    if recent_projects:
-        for project in recent_projects:
-            status_emoji = {
-                "Tervezés alatt": "📋",
-                "Folyamatban": "🔄",
-                "Késésben": "⚠️",
-                "Lezárt": "✅"
-            }.get(project.get("status", ""), "❓")
-            
-            progress = project.get("progress", 0)
-            st.write(f"{status_emoji} **{project.get('name', 'Névtelen')}** - {progress}%")
-    else:
-        st.info("Nincs projekt megjelenítéshez.")
-
-    st.markdown("---")
-
-    # Project alerts
-    st.subheader("🚨 Projekt figyelmeztetések")
-    
-    alerts = []
-    
-    # Overdue projects
-    if overdue_projects:
-        alerts.append(f"⚠️ **{len(overdue_projects)} lejárt projekt** - sürgős ellenőrzés szükséges")
-    
-    # Projects with low progress
-    low_progress_projects = [p for p in projects if p.get("progress", 0) < 25 and p.get("status") == "Folyamatban"]
-    if low_progress_projects:
-        alerts.append(f"📉 **{len(low_progress_projects)} projekt** alacsony haladással (25% alatt)")
-    
-    if alerts:
-        for alert in alerts:
-            st.warning(alert)
-    else:
-        st.success("✅ Nincs aktív projekt figyelmeztetés")
+    with col2:
+        # Projects by location
+        if location_counts:
+            locations_df = pd.DataFrame(list(location_counts.items()), columns=['Helyszín', 'Projektek száma'])
+            fig_bar = px.bar(
+                locations_df,
+                x='Helyszín',
+                y='Projektek száma',
+                title="Projektek száma helyszín szerint",
+                color='Projektek száma',
+                color_continuous_scale='Blues'
+            )
+            fig_bar.update_layout(height=400)
+            st.plotly_chart(fig_bar, use_container_width=True)
+        else:
+            st.info("Nincs helyszín adat megjelenítéshez.")
+else:
+    st.info("Nincs projekt adat megjelenítéshez.")
 
 with tab2:
-    # Resource metrics
-    st.subheader("👥 Erőforrás mutatók")
+    # 2. Erőforrások állapota
+    st.subheader("👥 Erőforrások állapota")
     col1, col2, col3 = st.columns(3)
     
     with col1:
         st.metric(
             label="Összes erőforrás",
-            value=total_resources
+            value=total_resources,
+            delta="(alkalmazott, alvállalkozó, eszköz)"
         )
     
     with col2:
+        available_ratio = available_resources / total_resources if total_resources > 0 else 0
         st.metric(
-            label="Elérhető erőforrás",
-            value=available_resources,
-            delta=f"{available_resources/total_resources*100:.1f}%" if total_resources > 0 else "0%"
+            label="Szabad / lefoglalt arány",
+            value=f"{available_resources}/{total_resources - available_resources}",
+            delta=f"{available_ratio*100:.1f}% szabad"
         )
     
     with col3:
-        unavailable_resources = total_resources - available_resources
+        overloaded_count = len(resource_overload)
         st.metric(
-            label="Nem elérhető",
-            value=unavailable_resources,
-            delta=f"⚠️ {unavailable_resources}" if unavailable_resources > 0 else "✅ 0"
+            label="Túlterhelt erőforrások",
+            value=overloaded_count,
+            delta=f"⚠️ {overloaded_count}" if overloaded_count > 0 else "✅ 0"
         )
-    
+
+    # Show resource overload details
+    if resource_overload:
+        st.warning("⚠️ **Túlterhelés figyelmeztetés:**")
+        for name, project_count in resource_overload.items():
+            st.write(f"• **{name}** - {project_count} projekten dolgozik egyszerre")
+
     st.markdown("---")
     
     # Profession distribution
@@ -281,272 +236,187 @@ with tab2:
             st.write(f"• {profession}: {count} fő")
     else:
         st.info("Nincs szakma adat megjelenítéshez.")
-    
-    st.markdown("---")
-    
-    # Resource alerts
-    st.subheader("🚨 Erőforrás figyelmeztetések")
-    
-    resource_alerts = []
-    
-    # Resource availability
-    unavailable_resources = total_resources - available_resources
-    if unavailable_resources > 0:
-        resource_alerts.append(f"👥 **{unavailable_resources} erőforrás** nem elérhető")
-    
-    # Check for critical profession shortages
-    critical_professions = ["Építésvezető", "Műszaki vezető", "Kőműves", "Villanyszerelő"]
-    for profession in critical_professions:
-        count = profession_counts.get(profession, 0)
-        if count == 0:
-            resource_alerts.append(f"⚠️ **{profession}** hiányzik a csapatból")
-        elif count == 1:
-            resource_alerts.append(f"🟡 **{profession}** csak 1 fő - kockázat")
-    
-    if resource_alerts:
-        for alert in resource_alerts:
-            st.warning(alert)
-    else:
-        st.success("✅ Nincs aktív erőforrás figyelmeztetés")
 
 with tab3:
-    # Weekly Planning Section
-    st.subheader("📅 Heti tervezés - Kivitelezői áttekintés")
-
-    # Week selector
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        selected_week = st.date_input(
-            "Válassz hetet:",
-            value=today,
-            help="Válassz ki egy dátumot a hét tervezéséhez"
-        )
-
-    # Calculate week start and end
-    week_start = selected_week - timedelta(days=selected_week.weekday())
-    week_end = week_start + timedelta(days=6)
-
-    st.markdown(f"**Tervezett hét:** {week_start.strftime('%Y-%m-%d')} - {week_end.strftime('%Y-%m-%d')}")
-
-    # Weekly planning metrics
-    col1, col2, col3, col4 = st.columns(4)
-
-    # Calculate weekly resource workload
-    weekly_resource_workload = {}
-    for resource in resources:
-        if resource.get("Elérhetőség") == "Elérhető":
-            # Count how many projects this resource is assigned to
-            assigned_projects = 0
-            for project in projects:
-                if project.get("status") in ["Folyamatban", "Késésben"]:
-                    if resource.get("Név") in project.get("members", []):
-                        assigned_projects += 1
-            weekly_resource_workload[resource.get("Név", "Névtelen")] = assigned_projects
-
-    # Calculate weekly project tasks
-    weekly_tasks = []
-    for project in projects:
-        if project.get("status") in ["Folyamatban", "Késésben"]:
-            try:
-                project_start = datetime.strptime(project.get("start", "2025-01-01"), "%Y-%m-%d").date()
-                project_end = datetime.strptime(project.get("end", "2025-12-31"), "%Y-%m-%d").date()
-                
-                # Check if project overlaps with selected week
-                if not (project_end < week_start or project_start > week_end):
-                    weekly_tasks.append({
-                        'project': project.get('name', 'Névtelen'),
-                        'status': project.get('status', 'Ismeretlen'),
-                        'progress': project.get('progress', 0),
-                        'members': len(project.get('members', [])),
-                        'locations': project.get('locations', [])
-                    })
-            except:
-                pass
-
-    with col1:
-        st.metric(
-            label="Heti aktív projektek",
-            value=len(weekly_tasks),
-            delta=f"{len(weekly_tasks)} projekt"
-        )
-
-    with col2:
-        available_this_week = len([r for r in resources if r.get("Elérhetőség") == "Elérhető"])
-        st.metric(
-            label="Elérhető erőforrások",
-            value=available_this_week,
-            delta=f"{available_this_week}/{total_resources}"
-        )
-
-    with col3:
-        # Calculate total required people for the week
-        total_required_people = sum(task['members'] for task in weekly_tasks)
-        st.metric(
-            label="Szükséges emberek",
-            value=total_required_people,
-            delta=f"{total_required_people} fő"
-        )
-
-    with col4:
-        # Calculate workload distribution
-        overloaded_resources = len([name for name, count in weekly_resource_workload.items() if count > 2])
-        st.metric(
-            label="Túlterhelt erőforrások",
-            value=overloaded_resources,
-            delta=f"⚠️ {overloaded_resources}" if overloaded_resources > 0 else "✅ 0"
-        )
-
-    st.markdown("---")
-
-    # Weekly Resource Planning
+    # 3. Anyag- és költségriasztások
+    st.subheader("💰 Anyag- és költségriasztások")
+    
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("👥 Erőforrás terhelés - Heti áttekintés")
-    
-        if weekly_resource_workload:
-            # Create resource workload chart
-            workload_data = []
-            for name, project_count in weekly_resource_workload.items():
-                resource = next((r for r in resources if r.get("Név") == name), None)
-                if resource:
-                    profession = resource.get("Pozíció", "Ismeretlen")
-                    workload_data.append({
-                        'Név': name,
-                        'Pozíció': profession,
-                        'Projektek': project_count,
-                        'Terhelés': 'Magas' if project_count > 2 else 'Normál' if project_count > 0 else 'Alacsony'
-                    })
-            
-            if workload_data:
-                workload_df = pd.DataFrame(workload_data)
-                
-                # Color mapping for workload
-                color_map = {'Alacsony': '#28a745', 'Normál': '#ffc107', 'Magas': '#dc3545'}
-                workload_df['Szín'] = workload_df['Terhelés'].map(color_map)
-                
-                fig_workload = px.bar(
-                    workload_df,
-                    x='Név',
-                    y='Projektek',
-                    color='Terhelés',
-                    title="Erőforrás terhelés (projektek száma)",
-                    color_discrete_map=color_map,
-                    hover_data=['Pozíció']
-                )
-                fig_workload.update_layout(height=400, xaxis_tickangle=-45)
-                st.plotly_chart(fig_workload, use_container_width=True)
-                
-                # Resource recommendations
-                st.write("**Erőforrás ajánlások:**")
-                for _, row in workload_df.iterrows():
-                    if row['Terhelés'] == 'Magas':
-                        st.warning(f"⚠️ **{row['Név']}** ({row['Pozíció']}) - {row['Projektek']} projektben dolgozik")
-                    elif row['Terhelés'] == 'Alacsony':
-                        st.info(f"💡 **{row['Név']}** ({row['Pozíció']}) - további feladatokhoz rendelhető")
+        st.write("**Anyagár változások (az előző hónaphoz képest):**")
+        for material, change in material_price_changes.items():
+            if "+" in change:
+                st.error(f"📈 {material}: {change}")
             else:
-                st.info("Nincs elérhető erőforrás adat.")
-        else:
-            st.info("Nincs erőforrás terhelés adat.")
+                st.success(f"📉 {material}: {change}")
 
     with col2:
-        st.subheader("📋 Heti projekt feladatok")
-        
-        if weekly_tasks:
-            # Group tasks by location for better planning
-            location_groups = {}
-            for task in weekly_tasks:
-                for location in task['locations']:
-                    if location not in location_groups:
-                        location_groups[location] = []
-                    location_groups[location].append(task)
-            
-            for location, tasks in location_groups.items():
-                with st.expander(f"📍 {location} ({len(tasks)} projekt)", expanded=True):
-                    for task in tasks:
-                        status_emoji = {
-                            "Folyamatban": "🔄",
-                            "Késésben": "⚠️",
-                            "Tervezés alatt": "📋"
-                        }.get(task['status'], "❓")
-                        
-                        progress_color = "🟢" if task['progress'] > 75 else "🟡" if task['progress'] > 50 else "🔴"
-                        
-                        st.write(f"""
-                        {status_emoji} **{task['project']}**  
-                        📊 Haladás: {progress_color} {task['progress']}%  
-                        👥 Csapat: {task['members']} fő
-                        """)
-        else:
-            st.info("Nincs aktív projekt a kiválasztott héten.")
+        st.write("**Költségkerethez képest eltérés:**")
+        for project, deviation in budget_deviations.items():
+            if "túllépés" in deviation or "+" in deviation and int(deviation.split("+")[1].split("%")[0]) > 10:
+                st.error(f"⚠️ {project}: {deviation}")
+            else:
+                st.success(f"✅ {project}: {deviation}")
 
     st.markdown("---")
 
-    # Weekly Schedule Planning
-    st.subheader("📅 Heti ütemterv tervezés")
-
-    # Create weekly schedule grid
-    days = ['Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat', 'Vasárnap']
-    day_dates = [(week_start + timedelta(days=i)).strftime('%m-%d') for i in range(7)]
-
-    # Create schedule data
-    schedule_data = []
-    for i, (day, date) in enumerate(zip(days, day_dates)):
-        # Count projects active on this day
-        active_projects = 0
-        for task in weekly_tasks:
-            # Simple logic: if project is active this week, it's active every day
-            active_projects += 1
-        
-        schedule_data.append({
-            'Nap': day,
-            'Dátum': date,
-            'Aktív projektek': active_projects,
-            'Szükséges emberek': total_required_people if active_projects > 0 else 0
+    # Cost analysis chart
+    st.subheader("📊 Költség elemzés")
+    
+    # Create cost deviation chart
+    cost_data = []
+    for project, deviation in budget_deviations.items():
+        percentage = int(deviation.split("+")[1].split("%")[0]) if "+" in deviation else int(deviation.split("-")[1].split("%")[0])
+        if "-" in deviation:
+            percentage = -percentage
+        cost_data.append({
+            'Projekt': project,
+            'Eltérés (%)': percentage,
+            'Típus': 'Túllépés' if percentage > 10 else 'Takarékosság' if percentage < 0 else 'Normál'
         })
-
-    if schedule_data:
-        schedule_df = pd.DataFrame(schedule_data)
-        
-        # Create weekly schedule chart
-        fig_schedule = px.bar(
-            schedule_df,
-            x='Nap',
-            y='Aktív projektek',
-            title="Heti projekt terhelés",
-            color='Aktív projektek',
-            color_continuous_scale='Blues',
-            hover_data=['Dátum', 'Szükséges emberek']
+    
+    if cost_data:
+        cost_df = pd.DataFrame(cost_data)
+        fig_cost = px.bar(
+            cost_df,
+            x='Projekt',
+            y='Eltérés (%)',
+            color='Típus',
+            title="Projekt költség eltérések",
+            color_discrete_map={'Túllépés': '#dc3545', 'Takarékosság': '#28a745', 'Normál': '#ffc107'}
         )
-        fig_schedule.update_layout(height=300)
-        st.plotly_chart(fig_schedule, use_container_width=True)
+        fig_cost.update_layout(height=400)
+        st.plotly_chart(fig_cost, use_container_width=True)
+
+with tab4:
+    # 4. Időjárás előrejelzés (AI előkészítve)
+    st.subheader("🌤️ Időjárás előrejelzés - Következő 7 nap")
+
+    for location, forecast in weather_forecast.items():
+        if location in [loc for project in projects for loc in project.get("locations", [])]:
+            st.write(f"**📍 {location}:**")
+            col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+            cols = [col1, col2, col3, col4, col5, col6, col7]
+            
+            for i, (day, weather) in enumerate(zip(days, forecast)):
+                with cols[i]:
+                    st.write(f"**{day}**")
+                    st.write(weather)
+            
+            # Weather warnings
+            if "🌧️" in forecast:
+                st.warning(f"⚠️ **{location}:** Eső várható, betonozást halaszd el!")
+
+    st.markdown("---")
+
+    # Weather impact analysis
+    st.subheader("📈 Időjárás hatás elemzés")
+    
+    # Count rainy days by location
+    weather_impact = {}
+    for location, forecast in weather_forecast.items():
+        rainy_days = sum(1 for day in forecast if "🌧️" in day)
+        weather_impact[location] = {
+            'Esős napok': rainy_days,
+            'Hatás': 'Magas' if rainy_days > 2 else 'Közepes' if rainy_days > 0 else 'Alacsony'
+        }
+    
+    if weather_impact:
+        impact_df = pd.DataFrame([
+            {'Helyszín': loc, 'Esős napok': data['Esős napok'], 'Hatás': data['Hatás']}
+            for loc, data in weather_impact.items()
+        ])
         
-        # Weekly planning recommendations
-        st.subheader("🤖 AI Tervezési ajánlások")
-        
-        recommendations = []
-        
-        # Resource recommendations
-        if overloaded_resources > 0:
-            recommendations.append("⚠️ **Erőforrás optimalizálás:** Néhány dolgozó túlterhelt. Fontolj meg új emberek felvételét vagy feladatok átszervezését.")
-        
-        if available_this_week < total_required_people:
-            recommendations.append("👥 **Személyzet hiány:** Nincs elég elérhető ember a tervezett feladatokhoz. Keress alvállalkozókat vagy halaszd el a feladatokat.")
-        
-        # Project recommendations
-        low_progress_weekly = [task for task in weekly_tasks if task['progress'] < 30]
-        if low_progress_weekly:
-            recommendations.append("📉 **Lassú haladás:** Néhány projekt lassabban halad, mint tervezve. Növeld a csapat méretét vagy optimalizáld a folyamatokat.")
-        
-        # Weather and external factors (simulated)
-        recommendations.append("🌤️ **Időjárás figyelés:** Ellenőrizd a heti időjárás előrejelzést a kültéri munkákhoz.")
-        recommendations.append("📋 **Anyagellátás:** Győződj meg róla, hogy minden szükséges anyag rendelkezésre áll a tervezett munkákhoz.")
-        
-        if recommendations:
-            for i, rec in enumerate(recommendations, 1):
-                st.write(f"{i}. {rec}")
-        else:
-            st.success("✅ Minden rendben! A heti tervezés optimális.")
+        fig_weather = px.bar(
+            impact_df,
+            x='Helyszín',
+            y='Esős napok',
+            color='Hatás',
+            title="Időjárás hatás helyszín szerint",
+            color_discrete_map={'Magas': '#dc3545', 'Közepes': '#ffc107', 'Alacsony': '#28a745'}
+        )
+        fig_weather.update_layout(height=400)
+        st.plotly_chart(fig_weather, use_container_width=True)
+
+with tab5:
+    # 5. Riasztások (Alert box)
+    st.subheader("🚨 Riasztások")
+
+    # Collect all alerts
+    red_alerts = []  # sürgős teendő
+    yellow_alerts = []  # figyelmeztetés
+    green_alerts = []  # minden rendben
+
+    # Red alerts (urgent)
+    if len(overdue_projects_list) > 0:
+        red_alerts.append(f"🔴 **Sürgős:** {len(overdue_projects_list)} lejárt projekt")
+
+    if any("túllépés" in dev for dev in budget_deviations.values()):
+        red_alerts.append("🔴 **Sürgős:** Költségtúllépés észlelve")
+
+    if any("🌧️" in forecast for forecast in weather_forecast.values()):
+        red_alerts.append("🔴 **Sürgős:** Eső várható - kültéri munkák halasztása")
+
+    # Yellow alerts (warnings)
+    if overdue_projects > 0:
+        yellow_alerts.append(f"🟡 **Figyelmeztetés:** {overdue_projects} projekt késésben")
+
+    if len(resource_overload) > 0:
+        yellow_alerts.append(f"🟡 **Figyelmeztetés:** {len(resource_overload)} erőforrás túlterhelt")
+
+    # Check for upcoming deadlines (next 7 days)
+    upcoming_deadlines = []
+    for project in projects:
+        try:
+            end_date = datetime.strptime(project.get("end", "2025-12-31"), "%Y-%m-%d").date()
+            days_until = (end_date - today).days
+            if 0 <= days_until <= 7 and project.get("status") not in ["Lezárt"]:
+                upcoming_deadlines.append(project)
+        except:
+            pass
+
+    if upcoming_deadlines:
+        yellow_alerts.append(f"🟡 **Figyelmeztetés:** {len(upcoming_deadlines)} projekt határidője közeledik")
+
+    # Green alerts (all good)
+    if len(red_alerts) == 0 and len(yellow_alerts) == 0:
+        green_alerts.append("🟢 **Minden rendben:** Nincs aktív riasztás")
+
+    # Display alerts
+    if red_alerts:
+        for alert in red_alerts:
+            st.error(alert)
+
+    if yellow_alerts:
+        for alert in yellow_alerts:
+            st.warning(alert)
+
+    if green_alerts:
+        for alert in green_alerts:
+            st.success(alert)
+
+    st.markdown("---")
+    
+    # Alert summary
+    st.subheader("📊 Riasztás összefoglaló")
+    
+    alert_summary = {
+        'Sürgős (Piros)': len(red_alerts),
+        'Figyelmeztetés (Sárga)': len(yellow_alerts),
+        'Rendben (Zöld)': len(green_alerts)
+    }
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric("Sürgős riasztások", len(red_alerts), delta="🔴")
+    
+    with col2:
+        st.metric("Figyelmeztetések", len(yellow_alerts), delta="🟡")
+    
+    with col3:
+        st.metric("Rendben", len(green_alerts), delta="🟢")
 
 st.markdown("---")
 st.caption("💡 **Tipp:** Használd a fenti tabokat a különböző területek megtekintéséhez.")
