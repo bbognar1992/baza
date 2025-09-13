@@ -22,7 +22,7 @@ if "selected_resource_index" not in st.session_state or st.session_state.selecte
     st.info("💡 Tipp: Menj vissza az Erőforrások oldalra és kattints egy erőforrás nevére a részletek megtekintéséhez.")
     
     if st.button("🔙 Vissza az Erőforrások oldalra"):
-        st.switch_page("pages/Resources.py")
+        st.switch_page("pages/resources.py")
 else:
     # Get the selected resource
     resource_index = st.session_state.selected_resource_index
@@ -44,7 +44,7 @@ else:
         with col3:
             if st.button("🔙 Vissza", key="back_to_resources"):
                 st.session_state.selected_resource_index = None
-                st.switch_page("pages/Resources.py")
+                st.switch_page("pages/resources.py")
         
         # Check if in edit mode
         if st.session_state.get("edit_mode", False):
@@ -319,7 +319,7 @@ else:
                                                use_container_width=True):
                                         # Set the selected project and navigate to project details
                                         st.session_state.selected_project_index = i + j
-                                        st.switch_page("pages/ProjectDetails.py")
+                                        st.switch_page("pages/project_details.py")
                 else:
                     st.info("Ez az erőforrás még nem vett részt egyetlen projektben sem.")
             

@@ -83,7 +83,7 @@ if st.session_state.projects:
             if cols[5].button("Megnyitás", key=f"open_{subset_key_prefix}{idx}"):
                 if original_idx is not None:
                     st.session_state.selected_project_index = original_idx
-                    st.switch_page("pages/ProjectDetails.py")
+                    st.switch_page("pages/project_details.py")
 
     with tab_future:
         render_list(future_projects, "future_")

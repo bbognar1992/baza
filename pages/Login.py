@@ -60,7 +60,7 @@ def login_page():
                         st.success("✅ Sikeres bejelentkezés!")
                         st.balloons()
                         st.session_state.user_logged_in = True
-                        st.switch_page("pages/Home.py")
+                        st.switch_page("pages/home.py")
                     else:
                         st.error("❌ Hibás felhasználónév vagy jelszó")
             
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     
     if is_logged_in:
         # User is already logged in, redirect to home
-        st.switch_page("pages/Home.py")
+        st.switch_page("pages/home.py")
     else:
         # Show login page
         login_page()

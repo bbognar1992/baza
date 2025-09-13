@@ -28,7 +28,7 @@ def logout_page():
                 """)
                 
                 if st.button("Újra bejelentkezés", type="secondary"):
-                    st.switch_page("pages/Login.py")
+                    st.switch_page("pages/logout.py")
 
 
 def perform_logout():

@@ -27,18 +27,18 @@ def render_sidebar_navigation():
         unsafe_allow_html=True
     )
     st.sidebar.markdown("### 📁 Projektmenedzsment")
-    st.sidebar.page_link('pages/Home.py', label='Főoldal')
-    st.sidebar.page_link('pages/Projects.py', label='Projektek')
-    st.sidebar.page_link('pages/Resources.py', label='Erőforrások')
-    st.sidebar.page_link('pages/utemezes.py', label='Ütemezés')
+    st.sidebar.page_link('pages/home.py', label='Főoldal')
+    st.sidebar.page_link('pages/projects.py', label='Projektek')
+    st.sidebar.page_link('pages/resources.py', label='Erőforrások')
+    st.sidebar.page_link('pages/scheduling.py', label='Ütemezés')
 
     st.sidebar.markdown("### 🤖 AI Asszisztensek")
-    st.sidebar.page_link('pages/AnyagarAjanlatkeresAI.py', label='AI Ajánlatkérés')
-    st.sidebar.page_link('pages/SzerzodeskeszitesAI.py', label='AI Szerződés')
+    st.sidebar.page_link('pages/material_quote_ai.py', label='AI Ajánlatkérés')
+    st.sidebar.page_link('pages/contract_creation_ai.py', label='AI Szerződés')
 
     st.sidebar.markdown("### ⚙️ Beállítások")
-    st.sidebar.page_link('pages/ProfessionTypes.py', label='Szakmák')
-    st.sidebar.page_link('pages/ProjektTipusok.py', label='Projekt Típusok')
+    st.sidebar.page_link('pages/profession_types.py', label='Szakmák')
+    st.sidebar.page_link('pages/project_types.py', label='Projekt Típusok')
     
     # Logout section
     st.sidebar.markdown("---")
@@ -48,12 +48,12 @@ def render_sidebar_navigation():
 def logout_user():
     """Redirect to logout page"""
     # Redirect to logout page (logout page will handle session clearing)
-    st.switch_page("pages/Logout.py")
+    st.switch_page("pages/logout.py")
 
 def handle_user_not_logged_in():
     """Handle user not logged in"""
     if not st.session_state.get("user_logged_in", False):
-        st.switch_page("pages/Login.py")
+        st.switch_page("pages/login.py")
 
 def set_current_page(page_name):
     """Set the current page name for navbar highlighting"""

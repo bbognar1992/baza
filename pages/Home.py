@@ -548,34 +548,5 @@ with tab3:
         else:
             st.success("✅ Minden rendben! A heti tervezés optimális.")
 
-# Quick actions (always visible)
-st.markdown("---")
-st.subheader("🚀 Gyors műveletek")
-col1, col2, col3, col4, col5, col6 = st.columns(6)
-
-with col1:
-    if st.button("📁 Projekt Dashboard", use_container_width=True, key="quickaction_project_dashboard"):
-        st.switch_page("pages/ProjectTab.py")
-
-with col2:
-    if st.button("👥 Erőforrás Dashboard", use_container_width=True, key="quickaction_resource_dashboard"):
-        st.switch_page("pages/ResourceTab.py")
-
-with col3:
-    if st.button("➕ Új projekt", use_container_width=True, key="quickaction_new_project"):
-        st.switch_page("pages/Projects.py")
-
-with col4:
-    if st.button("📁 Projektek", use_container_width=True, key="quickaction_projects"):
-        st.switch_page("pages/Projects.py")
-
-with col5:
-    if st.button("👥 Erőforrások", use_container_width=True, key="quickaction_resources"):
-        st.switch_page("pages/Resources.py")
-
-with col6:
-    if st.button("📊 Ütemezés", use_container_width=True, key="quickaction_schedule"):
-        st.switch_page("pages/utemezes.py")
-
 st.markdown("---")
 st.caption("💡 **Tipp:** Használd a fenti tabokat a különböző területek megtekintéséhez.")

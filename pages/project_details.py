@@ -41,7 +41,7 @@ if "selected_project_index" not in st.session_state or st.session_state.selected
     st.info("💡 Tipp: Menj vissza a Projektek oldalra és kattints egy projekt nevére a részletek megtekintéséhez.")
     
     if st.button("🔙 Vissza a Projektek oldalra"):
-        st.switch_page("pages/Projects.py")
+        st.switch_page("pages/projects.py")
 else:
     # Get the selected project
     project_index = st.session_state.selected_project_index
@@ -64,12 +64,12 @@ else:
             if st.button("👁️ Ügyfél nézet", key="client_view", help="Ügyfél nézet megnyitása - korlátozott hozzáférés"):
                 # Set the client view to show this specific project
                 st.session_state.client_selected_project_index = project_index
-                st.switch_page("pages/ClientView.py")
+                st.switch_page("pages/client_view.py")
         
         with col4:
             if st.button("🔙 Vissza", key="back_to_projects"):
                 st.session_state.selected_project_index = None
-                st.switch_page("pages/Projects.py")
+                st.switch_page("pages/projects.py")
         
         # Check if in edit mode
         if st.session_state.get("edit_mode", False):
@@ -295,7 +295,7 @@ else:
                                                        use_container_width=True):
                                                 # Set the selected resource and navigate to resource details
                                                 st.session_state.selected_resource_index = member_index
-                                                st.switch_page("pages/ResourceDetails.py")
+                                                st.switch_page("pages/resource_details.py")
                 else:
                     st.info("Nincs hozzárendelt tag a projekthez.")
             

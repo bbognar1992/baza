@@ -40,7 +40,7 @@ def landing_page():
             col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
             with col_btn2:
                 if st.button("🔐 Bejelentkezés", use_container_width=True, type="primary"):
-                    st.switch_page("pages/Login.py")
+                    st.switch_page("pages/login.py")
 
             
             # Footer

@@ -130,7 +130,7 @@ def render_resource_list(resources_subset, subset_key_prefix=""):
         if cols[5].button("Megnyitás", key=f"open_{subset_key_prefix}{idx}"):
             if original_idx is not None:
                 st.session_state.selected_resource_index = original_idx
-                st.switch_page("pages/ResourceDetails.py")
+                st.switch_page("pages/resource_details.py")
 
 with tab1:
     render_resource_list(emps, "emp_")
