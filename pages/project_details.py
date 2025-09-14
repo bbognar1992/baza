@@ -19,11 +19,7 @@ st.title("📁 Projekt Részletek")
 
 # Check if a project is selected
 if "selected_project_index" not in st.session_state or st.session_state.selected_project_index is None:
-    st.warning("Nincs kiválasztott projekt. Kérjük, válassz ki egy projektet a fő Projektek oldalról.")
-    st.info("💡 Tipp: Menj vissza a Projektek oldalra és kattints egy projekt nevére a részletek megtekintéséhez.")
-    
-    if st.button("🔙 Vissza a Projektek oldalra"):
-        st.switch_page("pages/projects.py")
+    st.switch_page("pages/projects.py")
 else:
     # Get the selected project
     project_index = st.session_state.selected_project_index
