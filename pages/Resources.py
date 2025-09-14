@@ -1,6 +1,6 @@
 import streamlit as st
 from default_data import ensure_base_session_state
-from navbar import render_sidebar_navigation, handle_user_not_logged_in
+from components.sidebar import render_sidebar_navigation, handle_user_not_logged_in
 
 st.set_page_config(page_title="Resources – ÉpítAI", layout="wide")
 

@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime
 from default_data import ensure_base_session_state
-from navbar import render_sidebar_navigation, handle_user_not_logged_in
+from components.sidebar import render_sidebar_navigation, handle_user_not_logged_in
 from components.project_details_tabs import basic_info, team, phases, locations, schedule, material_costs
 
 st.set_page_config(page_title="Project Details – ÉpítAI", layout="wide")
