@@ -1,12 +1,11 @@
 import streamlit as st
-import requests
 import pandas as pd
 import random
 from datetime import date, timedelta
 from default_data import ensure_base_session_state, get_default_phases
 from components.sidebar import render_sidebar_navigation, handle_user_not_logged_in
 
-st.set_page_config(page_title="Időjárás alapú ütemezés – ÉpítAI", layout="wide")
+st.set_page_config(page_title="Következő nap ütemezése – ÉpítAI", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)
@@ -17,9 +16,9 @@ handle_user_not_logged_in()
 # Render sidebar navigation
 render_sidebar_navigation()
 
-st.title("🌤️ Időjárás alapú ütemezés")
+st.title("📅 Következő nap ütemezése")
 
-st.write("Heti előrejelzés alapján megmutatjuk, mely projektek tudnak haladni.")
+st.write("A következő munkanap előrejelzése alapján megmutatjuk, mely projektek tudnak haladni.")
 
 
 def get_random_tasks():
@@ -46,51 +45,37 @@ def get_random_people():
     return random.sample(available_people, min(num_people, len(available_people)))
 
 
-@st.cache_data(show_spinner=False)
-def geocode_location(name: str):
-    try:
-        resp = requests.get(
-            "https://nominatim.openstreetmap.org/search",
-            params={"q": name, "format": "json", "limit": 1},
-            headers={"User-Agent": "epit-ai/1.0"},
-            timeout=6,
-        )
-        resp.raise_for_status()
-        results = resp.json()
-        if results:
-            return float(results[0]["lat"]), float(results[0]["lon"])
-    except Exception:
-        pass
-    return None
+def get_next_working_day(current_date):
+    """Get the next working day, skipping weekends"""
+    next_day = current_date + timedelta(days=1)
+    # Skip weekends (Saturday=5, Sunday=6)
+    while next_day.weekday() >= 5:
+        next_day += timedelta(days=1)
+    return next_day
 
-
-@st.cache_data(show_spinner=False)
-def fetch_weekly_weather(lat: float, lon: float, start: date, end: date):
-    try:
-        url = "https://api.open-meteo.com/v1/forecast"
-        params = {
-            "latitude": lat,
-            "longitude": lon,
-            "daily": "precipitation_hours,precipitation_probability_mean,weathercode",
-            "timezone": "auto",
-            "start_date": start.isoformat(),
-            "end_date": end.isoformat(),
-        }
-        resp = requests.get(url, params=params, timeout=8)
-        resp.raise_for_status()
-        return resp.json()
-    except Exception:
-        return None
+def get_fake_weather_data(location_name: str):
+    """Generate fake weather data for demonstration purposes"""
+    import random
+    
+    # Generate random weather data for 1 day
+    daily_data = {
+        "precipitation_probability_mean": [random.randint(10, 80)],
+        "precipitation_hours": [random.randint(0, 6)]
+    }
+    
+    return {
+        "daily": daily_data
+    }
 
 
 ensure_base_session_state(st)
 
 col_a, col_b = st.columns([1, 2])
 with col_a:
-    start_day = st.date_input("Hét kezdete", value=date.today())
-    end_day = start_day + timedelta(days=6)
+    current_date = st.date_input("Mai dátum", value=date.today())
+    next_working_day = get_next_working_day(current_date)
 with col_b:
-    st.caption(f"Időszak: {start_day.isoformat()} – {end_day.isoformat()}")
+    st.caption(f"Következő munkanap: {next_working_day.strftime('%Y-%m-%d (%A)')}")
 
 # Resources expander
 with st.expander("👥 Elérhető erőforrások", expanded=False):
@@ -160,77 +145,21 @@ for idx, proj in enumerate(projects_in_progress):
         })
         continue
 
-    coords = geocode_location(locs[0])
-    if not coords:
-        # Get actual tasks and required people for projects with geocoding issues
-        actual_tasks = proj.get("current_tasks", []) or get_random_tasks()
-        required_people = proj.get("required_people", []) or get_random_people()
-        
-        # Format actual tasks
-        if actual_tasks:
-            tasks_text = ", ".join(actual_tasks[:3])
-            if len(actual_tasks) > 3:
-                tasks_text += f" (+{len(actual_tasks) - 3} további)"
-        else:
-            tasks_text = "Nincs megadva"
-        
-        # Format required people count
-        if required_people:
-            people_text = str(len(required_people))
-        else:
-            people_text = "0"
-            
-        rows.append({
-            "Projekt": proj.get("name", f"Projekt {idx+1}"),
-            "Helyszín": locs[0],
-            "Összegzés": "Helyszín nem geokódolható",
-            "Haladhat": False,
-            "Aktuális feladatok": tasks_text,
-            "Szükséges személyek száma": people_text,
-        })
-        continue
-
-    weather = fetch_weekly_weather(coords[0], coords[1], start_day, end_day)
-    if not weather or "daily" not in weather:
-        # Get actual tasks and required people for projects with weather data issues
-        actual_tasks = proj.get("current_tasks", []) or get_random_tasks()
-        required_people = proj.get("required_people", []) or get_random_people()
-        
-        # Format actual tasks
-        if actual_tasks:
-            tasks_text = ", ".join(actual_tasks[:3])
-            if len(actual_tasks) > 3:
-                tasks_text += f" (+{len(actual_tasks) - 3} további)"
-        else:
-            tasks_text = "Nincs megadva"
-        
-        # Format required people count
-        if required_people:
-            people_text = str(len(required_people))
-        else:
-            people_text = "0"
-            
-        rows.append({
-            "Projekt": proj.get("name", f"Projekt {idx+1}"),
-            "Helyszín": locs[0],
-            "Összegzés": "Időjárási adatok nem elérhetők",
-            "Haladhat": False,
-            "Aktuális feladatok": tasks_text,
-            "Szükséges személyek száma": people_text,
-        })
-        continue
+    # Use fake weather data instead of API calls
+    weather = get_fake_weather_data(locs[0])
 
     daily = weather["daily"]
     probs = daily.get("precipitation_probability_mean", [])
     hours = daily.get("precipitation_hours", [])
-    # Heurisztika: haladhat, ha a héten a napok többségén alacsony csapadék esély és kevés csapadékos óra várható
-    good_days = 0
-    total_days = min(len(probs), len(hours))
-    for p, h in zip(probs, hours):
-        if (p or 0) < 40 and (h or 0) <= 2:
-            good_days += 1
-    can_progress = total_days > 0 and good_days >= max(3, total_days // 2)
-    summary = f"Kedvező napok: {good_days}/{total_days} (eső < 40%, esős órák ≤ 2)"
+    # Heurisztika: haladhat, ha a következő munkanapon alacsony csapadék esély és kevés csapadékos óra várható
+    if probs and hours:
+        prob = probs[0] or 0
+        hour = hours[0] or 0
+        can_progress = prob < 40 and hour <= 2
+        summary = f"Csapadék esély: {prob}%, esős órák: {hour} (haladhat: {prob < 40 and hour <= 2})"
+    else:
+        can_progress = False
+        summary = "Időjárási adatok nem elérhetők"
 
     # Get actual tasks and required people
     actual_tasks = proj.get("current_tasks", []) or get_random_tasks()
@@ -260,61 +189,101 @@ for idx, proj in enumerate(projects_in_progress):
     })
 
 
-# Create a single table with all projects
-st.subheader("📊 Projektek időjárás alapú ütemezése")
+# Display projects in expanders
+st.subheader("📊 Projektek következő nap ütemezése")
 
 if rows:
-    # Create table header with 6 columns
-    col1, col2, col3, col4, col5, col6 = st.columns([2, 1.5, 2.5, 2, 2, 1.5])
-    with col1:
-        st.markdown("**Projekt**")
-    with col2:
-        st.markdown("**Helyszín**")
-    with col3:
-        st.markdown("**Összegzés**")
-    with col4:
-        st.markdown("**Aktuális feladatok**")
-    with col5:
-        st.markdown("**Szükséges személyek száma**")
-    with col6:
-        st.markdown("**Státusz**")
-    
-    # Add separator
-    st.markdown("---")
-    
-    # Display each row with conditional styling
     for r in rows:
         status = "✅ Haladhat" if r["Haladhat"] else "⚠️ Nem haladhat"
         
-        # Choose background color based on status
-        if r["Haladhat"]:
-            # Green background for projects that can proceed
-            st.markdown(f"""
-            <div style="background-color: #e8f5e8; padding: 10px; margin: 2px 0; border-radius: 5px;">
-                <div style="display: flex; align-items: center;">
-                    <div style="flex: 2; font-weight: 500;">{r['Projekt']}</div>
-                    <div style="flex: 1.5;">{r['Helyszín']}</div>
-                    <div style="flex: 2.5;">{r['Összegzés']}</div>
-                    <div style="flex: 2;">{r['Aktuális feladatok']}</div>
-                    <div style="flex: 2;">{r['Szükséges személyek száma']}</div>
-                    <div style="flex: 1.5; text-align: center;">{status}</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+        # Determine if project is weather-sensitive (cannot proceed)
+        is_weather_sensitive = not r["Haladhat"]
+        
+        # Create expander with conditional styling
+        if is_weather_sensitive:
+            # Red expander for weather-sensitive projects
+            with st.expander(f"🔴 {r['Projekt']} - {status}", expanded=False):
+                st.markdown(f"**Helyszín:** {r['Helyszín']}")
+                st.markdown(f"**Időjárás összegzés:** {r['Összegzés']}")
+                
+                # Show tasks and required professions
+                st.markdown("**Aktuális feladatok és szükséges szakemberek:**")
+                
+                # Get the actual project data to show detailed task information
+                project_data = next((p for p in projects_in_progress if p.get("name") == r['Projekt']), None)
+                if project_data:
+                    # Get actual tasks and required people
+                    actual_tasks = project_data.get("current_tasks", []) or get_random_tasks()
+                    required_people = project_data.get("required_people", []) or get_random_people()
+                    
+                    if actual_tasks:
+                        for i, task in enumerate(actual_tasks):
+                            # For each task, show required professions
+                            st.markdown(f"**{i+1}. {task}**")
+                            
+                            # Group required people by profession
+                            if required_people and st.session_state.resources:
+                                # Get professions of required people
+                                task_professions = {}
+                                for person_name in required_people:
+                                    person_data = next((r for r in st.session_state.resources if r.get("Név") == person_name), None)
+                                    if person_data:
+                                        profession = person_data.get("Pozíció", "Ismeretlen")
+                                        task_professions[profession] = task_professions.get(profession, 0) + 1
+                                
+                                if task_professions:
+                                    for profession, count in task_professions.items():
+                                        st.markdown(f"   • {profession}: {count} személy")
+                                else:
+                                    st.markdown("   • Szakemberek nincsenek hozzárendelve")
+                            else:
+                                st.markdown("   • Szakemberek nincsenek hozzárendelve")
+                    else:
+                        st.markdown("Nincsenek megadva feladatok.")
+                else:
+                    st.markdown("Projekt adatok nem elérhetők.")
         else:
-            # Red background for projects that cannot proceed
-            st.markdown(f"""
-            <div style="background-color: #ffebee; padding: 10px; margin: 2px 0; border-radius: 5px;">
-                <div style="display: flex; align-items: center;">
-                    <div style="flex: 2; font-weight: 500;">{r['Projekt']}</div>
-                    <div style="flex: 1.5;">{r['Helyszín']}</div>
-                    <div style="flex: 2.5;">{r['Összegzés']}</div>
-                    <div style="flex: 2;">{r['Aktuális feladatok']}</div>
-                    <div style="flex: 2;">{r['Szükséges személyek száma']}</div>
-                    <div style="flex: 1.5; text-align: center;">{status}</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            # Normal expander for projects that can proceed
+            with st.expander(f"🟢 {r['Projekt']} - {status}", expanded=False):
+                st.markdown(f"**Helyszín:** {r['Helyszín']}")
+                st.markdown(f"**Időjárás összegzés:** {r['Összegzés']}")
+                
+                # Show tasks and required professions
+                st.markdown("**Aktuális feladatok és szükséges szakemberek:**")
+                
+                # Get the actual project data to show detailed task information
+                project_data = next((p for p in projects_in_progress if p.get("name") == r['Projekt']), None)
+                if project_data:
+                    # Get actual tasks and required people
+                    actual_tasks = project_data.get("current_tasks", []) or get_random_tasks()
+                    required_people = project_data.get("required_people", []) or get_random_people()
+                    
+                    if actual_tasks:
+                        for i, task in enumerate(actual_tasks):
+                            # For each task, show required professions
+                            st.markdown(f"**{i+1}. {task}**")
+                            
+                            # Group required people by profession
+                            if required_people and st.session_state.resources:
+                                # Get professions of required people
+                                task_professions = {}
+                                for person_name in required_people:
+                                    person_data = next((r for r in st.session_state.resources if r.get("Név") == person_name), None)
+                                    if person_data:
+                                        profession = person_data.get("Pozíció", "Ismeretlen")
+                                        task_professions[profession] = task_professions.get(profession, 0) + 1
+                                
+                                if task_professions:
+                                    for profession, count in task_professions.items():
+                                        st.markdown(f"   • {profession}: {count} személy")
+                                else:
+                                    st.markdown("   • Szakemberek nincsenek hozzárendelve")
+                            else:
+                                st.markdown("   • Szakemberek nincsenek hozzárendelve")
+                    else:
+                        st.markdown("Nincsenek megadva feladatok.")
+                else:
+                    st.markdown("Projekt adatok nem elérhetők.")
 else:
     st.info("Nincs projekt az időszakban.")
 
