@@ -67,6 +67,69 @@ def get_fake_weather_data(location_name: str):
         "daily": daily_data
     }
 
+def render_task_assignments(project_name, actual_tasks):
+    """Render task assignment interface for a project"""
+    # Initialize task assignments in session state if not exists
+    project_key = f"task_assignments_{project_name}"
+    if project_key not in st.session_state:
+        st.session_state[project_key] = {}
+    
+    if actual_tasks:
+        # Use form to prevent immediate page reload
+        with st.form(key=f"form_{project_name}"):
+            for i, task in enumerate(actual_tasks):
+                st.markdown(f"**{i+1}. {task}**")
+                
+                # Get available resources (excluding suppliers)
+                available_resources = [
+                    r for r in st.session_state.resources 
+                    if r.get("Típus") != "Beszállító" and r.get("Név")
+                ]
+                
+                if available_resources:
+                    # Create resource options for multi-select
+                    resource_options = [f"{r.get('Név', '')} ({r.get('Pozíció', 'Ismeretlen')})" for r in available_resources]
+                    
+                    # Get current assignments for this task
+                    task_key = f"task_{i}_{task}"
+                    current_assignments = st.session_state[project_key].get(task_key, [])
+                    
+                    # Ensure current_assignments is a list
+                    if not isinstance(current_assignments, list):
+                        current_assignments = []
+                    
+                    # Resource assignment multi-select
+                    selected_resources = st.multiselect(
+                        f"Szakemberek hozzárendelése:",
+                        options=resource_options,
+                        default=current_assignments,
+                        key=f"assign_{project_name}_{i}_{task}"
+                    )
+                    
+                    # Show currently assigned resources
+                    if selected_resources:
+                        st.markdown(f"   ✅ **Hozzárendelve ({len(selected_resources)} személy):**")
+                        for resource in selected_resources:
+                            st.markdown(f"      • {resource}")
+                    else:
+                        st.markdown("   ⚠️ **Nincs hozzárendelve szakember**")
+                else:
+                    st.markdown("   ⚠️ **Nincsenek elérhető szakemberek**")
+            
+            # Submit button to save all assignments at once
+            submitted = st.form_submit_button("💾 Mentés", type="primary")
+            
+            if submitted:
+                # Update session state with all selections
+                for i, task in enumerate(actual_tasks):
+                    task_key = f"task_{i}_{task}"
+                    multiselect_key = f"assign_{project_name}_{i}_{task}"
+                    if multiselect_key in st.session_state:
+                        st.session_state[project_key][task_key] = st.session_state[multiselect_key]
+                st.success("✅ Hozzárendelések mentve!")
+    else:
+        st.markdown("Nincsenek megadva feladatok.")
+
 
 ensure_base_session_state(st)
 
@@ -202,86 +265,40 @@ if rows:
         # Create expander with conditional styling
         if is_weather_sensitive:
             # Red expander for weather-sensitive projects
-            with st.expander(f"🔴 {r['Projekt']} - {status}", expanded=False):
+            with st.expander(f"🔴 {r['Projekt']} - {status}", expanded=True):
                 st.markdown(f"**Helyszín:** {r['Helyszín']}")
                 st.markdown(f"**Időjárás összegzés:** {r['Összegzés']}")
                 
-                # Show tasks and required professions
-                st.markdown("**Aktuális feladatok és szükséges szakemberek:**")
+                # Show tasks and resource assignments
+                st.markdown("**Aktuális feladatok és szakember hozzárendelések:**")
                 
                 # Get the actual project data to show detailed task information
                 project_data = next((p for p in projects_in_progress if p.get("name") == r['Projekt']), None)
                 if project_data:
-                    # Get actual tasks and required people
+                    # Get actual tasks
                     actual_tasks = project_data.get("current_tasks", []) or get_random_tasks()
-                    required_people = project_data.get("required_people", []) or get_random_people()
                     
-                    if actual_tasks:
-                        for i, task in enumerate(actual_tasks):
-                            # For each task, show required professions
-                            st.markdown(f"**{i+1}. {task}**")
-                            
-                            # Group required people by profession
-                            if required_people and st.session_state.resources:
-                                # Get professions of required people
-                                task_professions = {}
-                                for person_name in required_people:
-                                    person_data = next((r for r in st.session_state.resources if r.get("Név") == person_name), None)
-                                    if person_data:
-                                        profession = person_data.get("Pozíció", "Ismeretlen")
-                                        task_professions[profession] = task_professions.get(profession, 0) + 1
-                                
-                                if task_professions:
-                                    for profession, count in task_professions.items():
-                                        st.markdown(f"   • {profession}: {count} személy")
-                                else:
-                                    st.markdown("   • Szakemberek nincsenek hozzárendelve")
-                            else:
-                                st.markdown("   • Szakemberek nincsenek hozzárendelve")
-                    else:
-                        st.markdown("Nincsenek megadva feladatok.")
+                    # Render task assignments
+                    render_task_assignments(r['Projekt'], actual_tasks)
                 else:
                     st.markdown("Projekt adatok nem elérhetők.")
         else:
             # Normal expander for projects that can proceed
-            with st.expander(f"🟢 {r['Projekt']} - {status}", expanded=False):
+            with st.expander(f"🟢 {r['Projekt']} - {status}", expanded=True):
                 st.markdown(f"**Helyszín:** {r['Helyszín']}")
                 st.markdown(f"**Időjárás összegzés:** {r['Összegzés']}")
                 
-                # Show tasks and required professions
-                st.markdown("**Aktuális feladatok és szükséges szakemberek:**")
+                # Show tasks and resource assignments
+                st.markdown("**Aktuális feladatok és szakember hozzárendelések:**")
                 
                 # Get the actual project data to show detailed task information
                 project_data = next((p for p in projects_in_progress if p.get("name") == r['Projekt']), None)
                 if project_data:
-                    # Get actual tasks and required people
+                    # Get actual tasks
                     actual_tasks = project_data.get("current_tasks", []) or get_random_tasks()
-                    required_people = project_data.get("required_people", []) or get_random_people()
                     
-                    if actual_tasks:
-                        for i, task in enumerate(actual_tasks):
-                            # For each task, show required professions
-                            st.markdown(f"**{i+1}. {task}**")
-                            
-                            # Group required people by profession
-                            if required_people and st.session_state.resources:
-                                # Get professions of required people
-                                task_professions = {}
-                                for person_name in required_people:
-                                    person_data = next((r for r in st.session_state.resources if r.get("Név") == person_name), None)
-                                    if person_data:
-                                        profession = person_data.get("Pozíció", "Ismeretlen")
-                                        task_professions[profession] = task_professions.get(profession, 0) + 1
-                                
-                                if task_professions:
-                                    for profession, count in task_professions.items():
-                                        st.markdown(f"   • {profession}: {count} személy")
-                                else:
-                                    st.markdown("   • Szakemberek nincsenek hozzárendelve")
-                            else:
-                                st.markdown("   • Szakemberek nincsenek hozzárendelve")
-                    else:
-                        st.markdown("Nincsenek megadva feladatok.")
+                    # Render task assignments
+                    render_task_assignments(r['Projekt'], actual_tasks)
                 else:
                     st.markdown("Projekt adatok nem elérhetők.")
 else:
