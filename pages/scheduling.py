@@ -4,6 +4,7 @@ import random
 from datetime import date, timedelta
 from default_data import ensure_base_session_state, get_default_phases
 from components.sidebar import render_sidebar_navigation, handle_user_not_logged_in
+import random
 
 st.set_page_config(page_title="Következő nap ütemezése – ÉpítAI", layout="wide")
 
@@ -78,8 +79,6 @@ def render_task_assignments(project_name, actual_tasks):
         # Use form to prevent immediate page reload
         with st.form(key=f"form_{project_name}"):
             for i, task in enumerate(actual_tasks):
-                st.markdown(f"**{i+1}. {task}**")
-                
                 # Get available resources (excluding suppliers)
                 available_resources = [
                     r for r in st.session_state.resources 
@@ -100,21 +99,11 @@ def render_task_assignments(project_name, actual_tasks):
                     
                     # Resource assignment multi-select
                     selected_resources = st.multiselect(
-                        f"Szakemberek hozzárendelése:",
+                        f"**{i+1}. {task}**",
                         options=resource_options,
                         default=current_assignments,
                         key=f"assign_{project_name}_{i}_{task}"
                     )
-                    
-                    # Show currently assigned resources
-                    if selected_resources:
-                        st.markdown(f"   ✅ **Hozzárendelve ({len(selected_resources)} személy):**")
-                        for resource in selected_resources:
-                            st.markdown(f"      • {resource}")
-                    else:
-                        st.markdown("   ⚠️ **Nincs hozzárendelve szakember**")
-                else:
-                    st.markdown("   ⚠️ **Nincsenek elérhető szakemberek**")
             
             # Submit button to save all assignments at once
             submitted = st.form_submit_button("💾 Mentés", type="primary")
@@ -205,6 +194,7 @@ for idx, proj in enumerate(projects_in_progress):
             "Haladhat": False,
             "Aktuális feladatok": tasks_text,
             "Szükséges személyek száma": people_text,
+            "Méret": random.randint(80, 200),
         })
         continue
 
@@ -249,6 +239,7 @@ for idx, proj in enumerate(projects_in_progress):
         "Haladhat": can_progress,
         "Aktuális feladatok": tasks_text,
         "Szükséges személyek száma": people_text,
+        "Méret": proj.get("size", "Nincs megadva"),
     })
 
 
@@ -267,6 +258,7 @@ if rows:
             # Red expander for weather-sensitive projects
             with st.expander(f"🔴 {r['Projekt']} - {status}", expanded=True):
                 st.markdown(f"**Helyszín:** {r['Helyszín']}")
+                st.markdown(f"**Méret:** {r['Méret']}")
                 st.markdown(f"**Időjárás összegzés:** {r['Összegzés']}")
                 
                 # Show tasks and resource assignments
@@ -286,6 +278,7 @@ if rows:
             # Normal expander for projects that can proceed
             with st.expander(f"🟢 {r['Projekt']} - {status}", expanded=True):
                 st.markdown(f"**Helyszín:** {r['Helyszín']}")
+                st.markdown(f"**Méret:** {r['Méret']}")
                 st.markdown(f"**Időjárás összegzés:** {r['Összegzés']}")
                 
                 # Show tasks and resource assignments

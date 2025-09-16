@@ -10,6 +10,7 @@ def render_basic_info_tab(project):
         st.write(f"**Név:** {project.get('name', 'Nincs megadva')}")
         st.write(f"**Státusz:** {project.get('status', 'Nincs megadva')}")
         st.write(f"**Típus:** {project.get('type', 'Nincs megadva')}")
+        st.write(f"**Alapterület:** {project.get('size', 'Nincs megadva')} m²")
         st.write(f"**Előrehaladás:** {project.get('progress', 0)}%")
     
     with col2:

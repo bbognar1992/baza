@@ -327,6 +327,7 @@ def seed_projects_if_empty(st):
             "name": f"Családi ház {i}",
             "start": f"2025-{start_month:02d}-01",
             "end": f"2025-{end_month:02d}-28",
+            "size": random.randint(80, 200),
             "status": status,
             "members": member_names[:2],
             "locations": [city],
