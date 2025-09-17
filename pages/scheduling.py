@@ -208,112 +208,176 @@ location_groups = get_tasks_grouped_by_location()
 if "task_assignments" not in st.session_state:
     st.session_state.task_assignments = {}
 
-# Display tasks in separate tables by location
-st.subheader("📊 Feladatok következő nap ütemezése")
-
 if location_groups:
-    # Get currently used resources from session state
-    used_resources = get_used_resources_from_session()
-    
-    # Create a form for all assignments
-    with st.form("task_assignments_form"):
-        # Display each location as a separate table
-        for location, location_data in location_groups.items():
-            tasks = location_data["tasks"]
-            weather_summary = location_data["weather_summary"]
-            can_progress = location_data["can_progress"]
-            
-            # Determine container color based on weather
-            if can_progress:
-                container_color = "green"
-                status_icon = "✅"
-            else:
-                container_color = "orange"
-                status_icon = "⚠️"
-            
-            # Create colored container for this location
-            with st.container():
-                # Add custom CSS for colored background
-                st.markdown(f"""
-                <div style="
-                    background-color: {'#d4edda' if container_color == 'green' else '#fff3cd'};
-                    border: 2px solid {'#c3e6cb' if container_color == 'green' else '#ffeaa7'};
-                    border-radius: 10px;
-                    padding: 15px;
-                    margin: 10px 0;
-                ">
-                """, unsafe_allow_html=True)
+    tab1, tab2 = st.tabs(["Feladat-hozzárendelés", "Erőforrás-helyszín táblázat"])
+    with tab1:
+        # Get currently used resources from session state
+        used_resources = get_used_resources_from_session()
+        
+        # Create a form for all
+        with st.form("task_assignments_form"):
+            # Display each location as a separate table
+            for location, location_data in location_groups.items():
+                tasks = location_data["tasks"]
+                weather_summary = location_data["weather_summary"]
+                can_progress = location_data["can_progress"]
                 
-                # Location header with weather info
-                st.markdown(f"### 📍 {location} {status_icon}")
+                # Determine container color based on weather
+                if can_progress:
+                    container_color = "green"
+                    status_icon = "✅"
+                else:
+                    container_color = "orange"
+                    status_icon = "⚠️"
                 
-                if weather_summary != "Helyszín nincs megadva":
-                    st.caption(f"Időjárás: {weather_summary}")
-                
-                # Create table for this location
-                col1, col2, col3 = st.columns([2, 2, 2])
-                
-                with col1:
-                    st.markdown("**Projekt**")
-                with col2:
-                    st.markdown("**Feladat**")
-                with col3:
-                    st.markdown("**Hozzárendelt szakemberek**")
-                
-                st.markdown("---")
-                
-                # Display each task as a row
-                for row in tasks:
+                # Create colored container for this location
+                with st.container():
+                    # Add custom CSS for colored background
+                    st.markdown(f"""
+                    <div style="
+                        background-color: {'#d4edda' if container_color == 'green' else '#fff3cd'};
+                        border: 2px solid {'#c3e6cb' if container_color == 'green' else '#ffeaa7'};
+                        border-radius: 10px;
+                        padding: 15px;
+                        margin: 10px 0;
+                    ">
+                    """, unsafe_allow_html=True)
+                    
+                    # Location header with weather info
+                    st.markdown(f"### 📍 {location} {status_icon}")
+                    
+                    if weather_summary != "Helyszín nincs megadva":
+                        st.caption(f"Időjárás: {weather_summary}")
+                    
+                    # Create table for this location
                     col1, col2, col3 = st.columns([2, 2, 2])
                     
                     with col1:
-                        st.write(row["Projekt"])
+                        st.markdown("**Projekt**")
                     with col2:
-                        st.write(row["Feladat"])
+                        st.markdown("**Feladat**")
                     with col3:
-                        # Get available resources for this task
-                        task_profession = row["Szükséges szakma"]
-                        available_resources = get_available_resources_for_task(task_profession, used_resources)
+                        st.markdown("**Hozzárendelt szakemberek**")
+                    
+                    st.markdown("---")
+                    
+                    # Display each task as a row
+                    for row in tasks:
+                        col1, col2, col3 = st.columns([2, 2, 2])
                         
-                        if available_resources:
-                            # Create resource options
-                            resource_options = [f"{r.get('Név', '')} ({r.get('Pozíció', 'Ismeretlen')})" for r in available_resources]
+                        with col1:
+                            st.write(row["Projekt"])
+                        with col2:
+                            st.write(row["Feladat"])
+                        with col3:
+                            # Get available resources for this task
+                            task_profession = row["Szükséges szakma"]
+                            available_resources = get_available_resources_for_task(task_profession, used_resources)
                             
-                            # Get current assignments for this task
-                            task_id = row["task_id"]
-                            current_assignments = st.session_state.task_assignments.get(task_id, [])
-                            
-                            # Ensure current_assignments is a list
-                            if not isinstance(current_assignments, list):
-                                current_assignments = []
-                            
-                            # Resource assignment multi-select
-                            selected_resources = st.multiselect(
-                                "",
-                                options=resource_options,
-                                default=current_assignments,
-                                key=f"assign_{task_id}",
-                                label_visibility="collapsed"
-                            )
+                            if available_resources:
+                                # Create resource options
+                                resource_options = [f"{r.get('Név', '')} ({r.get('Pozíció', 'Ismeretlen')})" for r in available_resources]
+                                
+                                # Get current assignments for this task
+                                task_id = row["task_id"]
+                                current_assignments = st.session_state.task_assignments.get(task_id, [])
+                                
+                                # Ensure current_assignments is a list
+                                if not isinstance(current_assignments, list):
+                                    current_assignments = []
+                                
+                                # Resource assignment multi-select
+                                selected_resources = st.multiselect(
+                                    "",
+                                    options=resource_options,
+                                    default=current_assignments,
+                                    key=f"assign_{task_id}",
+                                    label_visibility="collapsed"
+                                )
+                    
+                    # Close the colored container
+                    st.markdown("</div>", unsafe_allow_html=True)
+            
+            # Single save button for all assignments
+            submitted = st.form_submit_button("💾 Összes hozzárendelés mentése", type="primary")
+            
+            if submitted:
+                # Update session state with all selections from all locations
+                for location, location_data in location_groups.items():
+                    for row in location_data["tasks"]:
+                        task_id = row["task_id"]
+                        multiselect_key = f"assign_{task_id}"
+                        if multiselect_key in st.session_state:
+                            st.session_state.task_assignments[task_id] = st.session_state[multiselect_key]
+                st.success("✅ Összes hozzárendelés mentve!")
+                st.rerun()
+            else:
+                st.info("Nincs feladat az időszakban.")
+
+    with tab2:        
+        # Get all available resources (excluding suppliers)
+        available_resources = [
+            r for r in st.session_state.resources 
+            if r.get("Típus") != "Beszállító" and r.get("Név")
+        ]
+        
+        if available_resources:
+            # Create a table showing resources and their assigned locations
+            table_data = []
+            
+            for resource in available_resources:
+                resource_name = resource.get("Név", "")
+                resource_position = resource.get("Pozíció", "Ismeretlen")
                 
-                # Close the colored container
-                st.markdown("</div>", unsafe_allow_html=True)
-        
-        # Single save button for all assignments
-        submitted = st.form_submit_button("💾 Összes hozzárendelés mentése", type="primary")
-        
-        if submitted:
-            # Update session state with all selections from all locations
-            for location, location_data in location_groups.items():
-                for row in location_data["tasks"]:
-                    task_id = row["task_id"]
-                    multiselect_key = f"assign_{task_id}"
-                    if multiselect_key in st.session_state:
-                        st.session_state.task_assignments[task_id] = st.session_state[multiselect_key]
-            st.success("✅ Összes hozzárendelés mentve!")
-            st.rerun()
+                # Find assigned locations for this resource
+                assigned_locations = set()
+                
+                for task_id, assignments in st.session_state.task_assignments.items():
+                    if isinstance(assignments, list):
+                        for assignment in assignments:
+                            if assignment.startswith(resource_name):
+                                # Find the task details
+                                for location, location_data in location_groups.items():
+                                    for task_row in location_data["tasks"]:
+                                        if task_row["task_id"] == task_id:
+                                            assigned_locations.add(location)
+                                            break
+                
+                # Create table row
+                if assigned_locations:
+                    locations_text = ", ".join(sorted(assigned_locations))
+                else:
+                    locations_text = "Nincs hozzárendelve"
+                
+                table_data.append({
+                    "Erőforrás": f"{resource_name} ({resource_position})",
+                    "Helyszín": locations_text,
+                })
+            
+            # Display the table
+            if table_data:
+                # Create columns for the table
+                col1, col2 = st.columns([2, 2])
+                
+                with col1:
+                    st.markdown("**Erőforrás**")
+                with col2:
+                    st.markdown("**Helyszín**")
+                
+                st.markdown("---")
+                
+                # Display each row
+                for row in table_data:
+                    col1, col2 = st.columns([2, 2])
+                    
+                    with col1:
+                        st.write(row["Erőforrás"])
+                    with col2:
+                        st.write(row["Helyszín"])
+            else:
+                st.info("Nincsenek hozzárendelt erőforrások.")
         else:
-            st.info("Nincs feladat az időszakban.")
+            st.info("Nincsenek elérhető erőforrások.")
 
 # Show current assignments summary
 if "task_assignments" in st.session_state and st.session_state.task_assignments:
