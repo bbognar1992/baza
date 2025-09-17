@@ -17,7 +17,7 @@ handle_user_not_logged_in()
 # Render sidebar navigation
 render_sidebar_navigation()
 
-st.title("📅 Ütemezése")
+st.title("📅 Ütemezés")
 
 st.write("Az erőforrások hozzárendelése a kiválasztott dátumtól kezdve történik. Amint egy erőforrás egy feladathoz lett rendelve, a befejezésig vagy módosításig azon a feladaton marad.")
 
