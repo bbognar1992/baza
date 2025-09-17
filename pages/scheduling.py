@@ -189,30 +189,6 @@ with col_a:
 with col_b:
     st.caption(f"Következő munkanap: {next_working_day.strftime('%Y-%m-%d (%A)')}")
 
-# Resources expander
-with st.expander("👥 Elérhető erőforrások", expanded=False):
-    if st.session_state.resources:
-        # Group resources by profession and count them
-        profession_counts = {}
-        for resource in st.session_state.resources:
-            # Skip suppliers (Beszállító)
-            if resource.get("Típus") == "Beszállító":
-                continue
-                
-            profession = resource.get("Pozíció", "Szakma nincs megadva")
-            if profession not in profession_counts:
-                profession_counts[profession] = 0
-            profession_counts[profession] += 1
-        
-        if profession_counts:
-            st.write("**Szakmák és elérhető személyek száma:**")
-            for profession, count in profession_counts.items():
-                st.write(f"• **{profession}**: {count} személy")
-        else:
-            st.info("Nincsenek elérhető szakemberek a rendszerben.")
-    else:
-        st.info("Nincsenek erőforrások a rendszerben.")
-
 if not st.session_state.projects:
     st.info("Nincs projekt a rendszerben. Adj hozzá projekteket a Projektek oldalon.")
     st.stop()
