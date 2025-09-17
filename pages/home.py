@@ -107,72 +107,72 @@ with tab1:
     st.subheader("📊 Projekt státusz összefoglaló")
     col1, col2, col3, col4 = st.columns(4)
 
-with col1:
-    st.metric(
-            label="Aktív projektek száma",
-            value=active_projects,
-            delta=f"{active_projects/total_projects*100:.1f}%" if total_projects > 0 else "0%"
-    )
-
-with col2:
-    st.metric(
-            label="Befejezett projektek száma",
-            value=completed_projects,
-            delta=f"{completed_projects/total_projects*100:.1f}%" if total_projects > 0 else "0%"
-    )
-
-with col3:
-    st.metric(
-            label="Késésben lévő projektek",
-            value=overdue_projects,
-            delta=f"⚠️ {overdue_projects}" if overdue_projects > 0 else "✅ 0"
-    )
-
-with col4:
-    st.metric(
-            label="Összes projekt",
-            value=total_projects,
-        delta=None
-    )
-
-st.markdown("---")
-
-# Additional project details
-st.subheader("📈 Projekt részletek")
-
-# Project status distribution chart
-if status_counts:
-    col1, col2 = st.columns(2)
-
     with col1:
-        # Create pie chart
-        fig_pie = px.pie(
-            values=list(status_counts.values()),
-            names=list(status_counts.keys()),
-            title="Projektek státusza szerint",
-            color_discrete_sequence=px.colors.qualitative.Set3
+        st.metric(
+                label="Aktív projektek száma",
+                value=active_projects,
+                delta=f"{active_projects/total_projects*100:.1f}%" if total_projects > 0 else "0%"
         )
-        fig_pie.update_layout(height=400)
-        st.plotly_chart(fig_pie, use_container_width=True)
 
     with col2:
-        # Projects by location
-        if location_counts:
-            locations_df = pd.DataFrame(list(location_counts.items()), columns=['Helyszín', 'Projektek száma'])
-            fig_bar = px.bar(
-                locations_df,
-                x='Helyszín',
-                y='Projektek száma',
-                title="Projektek száma helyszín szerint",
-                color='Projektek száma',
-                color_continuous_scale='Blues'
+        st.metric(
+                label="Befejezett projektek száma",
+                value=completed_projects,
+                delta=f"{completed_projects/total_projects*100:.1f}%" if total_projects > 0 else "0%"
+        )
+
+    with col3:
+        st.metric(
+                label="Késésben lévő projektek",
+                value=overdue_projects,
+                delta=f"⚠️ {overdue_projects}" if overdue_projects > 0 else "✅ 0"
+        )
+
+    with col4:
+        st.metric(
+                label="Összes projekt",
+                value=total_projects,
+            delta=None
+        )
+
+    st.markdown("---")
+
+    # Additional project details
+    st.subheader("📈 Projekt részletek")
+
+    # Project status distribution chart
+    if status_counts:
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # Create pie chart
+            fig_pie = px.pie(
+                values=list(status_counts.values()),
+                names=list(status_counts.keys()),
+                title="Projektek státusza szerint",
+                color_discrete_sequence=px.colors.qualitative.Set3
             )
-            fig_bar.update_layout(height=400)
-            st.plotly_chart(fig_bar, use_container_width=True)
-        else:
-            st.info("Nincs helyszín adat megjelenítéshez.")
-else:
-    st.info("Nincs projekt adat megjelenítéshez.")
+            fig_pie.update_layout(height=400)
+            st.plotly_chart(fig_pie, use_container_width=True)
+
+        with col2:
+            # Projects by location
+            if location_counts:
+                locations_df = pd.DataFrame(list(location_counts.items()), columns=['Helyszín', 'Projektek száma'])
+                fig_bar = px.bar(
+                    locations_df,
+                    x='Helyszín',
+                    y='Projektek száma',
+                    title="Projektek száma helyszín szerint",
+                    color='Projektek száma',
+                    color_continuous_scale='Blues'
+                )
+                fig_bar.update_layout(height=400)
+                st.plotly_chart(fig_bar, use_container_width=True)
+            else:
+                st.info("Nincs helyszín adat megjelenítéshez.")
+    else:
+        st.info("Nincs projekt adat megjelenítéshez.")
 
 with tab2:
     # 2. Erőforrások állapota
