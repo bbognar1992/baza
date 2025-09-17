@@ -1,5 +1,5 @@
 import streamlit as st
-from default_data import ensure_base_session_state
+from default_data import ensure_base_session_state, get_default_phases
 import pandas as pd
 from datetime import datetime, timedelta
 from components.sidebar import render_sidebar_navigation, handle_user_not_logged_in
@@ -288,7 +288,7 @@ else:
                     st.info("Nincsenek megadva készségek.")
             
             with tab4:
-                st.subheader("Projektelőzmények")
+                st.subheader("📋 Projektek és feladatok")
                 
                 # Find projects where this resource is involved
                 involved_projects = []
@@ -300,26 +300,87 @@ else:
                     st.write(f"Ez az erőforrás **{len(involved_projects)}** projektben vesz részt:")
                     st.write("")  # Add some spacing
                     
-                    # Display projects in columns (2 per row for better space utilization)
-                    for i in range(0, len(involved_projects), 2):
-                        cols = st.columns(2)
+                    # Get default phases for task structure
+                    phases_def = get_default_phases()
+                    
+                    # Display each project with its tasks
+                    for project_index, project in enumerate(involved_projects):
+                        project_name = project.get('name', 'Névtelen projekt')
+                        project_status = project.get('status', 'Ismeretlen')
+                        project_progress = project.get('progress', 0)
                         
-                        for j, col in enumerate(cols):
-                            if i + j < len(involved_projects):
-                                project = involved_projects[i + j]
-                                project_name = project.get('name', 'Névtelen projekt')
-                                project_status = project.get('status', 'Ismeretlen')
-                                project_progress = project.get('progress', 0)
+                        # Project header with navigation button
+                        col1, col2 = st.columns([3, 1])
+                        
+                        with col1:
+                            st.subheader(f"📁 {project_name}")
+                            st.caption(f"Státusz: {project_status} | Haladás: {project_progress}%")
+                        
+                        with col2:
+                            if st.button("🔍 Részletek", key=f"view_project_{project_index}"):
+                                st.session_state.selected_project_index = project_index
+                                st.switch_page("pages/project_details.py")
+                        
+                        # Show only relevant tasks for this resource
+                        if "phases_checked" in project and project["phases_checked"]:
+                            # Collect all relevant tasks for this resource
+                            relevant_tasks = []
+                            resource_profession = resource.get("Pozíció", "").lower()
+                            
+                            for phase_index, phase in enumerate(phases_def):
+                                phase_name = phase["name"]
+                                phase_tasks = phase["tasks"]
                                 
-                                # Create a clickable link to project details
-                                with col:
-                                    if st.button(f"📁 {project_name} - {project_status} ({project_progress}%)", 
-                                               key=f"project_link_{i + j}", 
-                                               help=f"Kattints a '{project_name}' projekt részleteinek megtekintéséhez",
-                                               use_container_width=True):
-                                        # Set the selected project and navigate to project details
-                                        st.session_state.selected_project_index = i + j
-                                        st.switch_page("pages/project_details.py")
+                                # Check if this phase has any tasks
+                                if phase_index < len(project["phases_checked"]):
+                                    phase_checked = project["phases_checked"][phase_index]
+                                    
+                                    for task_index, task in enumerate(phase_tasks):
+                                        if task_index < len(phase_checked):
+                                            is_completed = phase_checked[task_index]
+                                            
+                                            # Handle task format
+                                            if isinstance(task, str):
+                                                task_name = task
+                                                task_profession = ""
+                                                task_duration = "N/A"
+                                            else:
+                                                task_name = task.get("name", "Unknown task")
+                                                task_profession = task.get("profession", "")
+                                                task_duration = task.get("duration_days", "N/A")
+                                                if isinstance(task_duration, int):
+                                                    task_duration = f"{task_duration} nap"
+                                            
+                                            # Check if this resource's profession matches the task
+                                            is_relevant = (task_profession == "" or 
+                                                        task_profession.lower() in resource_profession or
+                                                        resource_profession in task_profession.lower())
+                                            
+                                            if is_relevant:
+                                                relevant_tasks.append({
+                                                    'phase_name': phase_name,
+                                                    'task_name': task_name,
+                                                    'task_profession': task_profession,
+                                                    'task_duration': task_duration,
+                                                    'is_completed': is_completed
+                                                })
+                            
+                            # Display relevant tasks under one expander
+                            if relevant_tasks:
+                                # Limit to 3 tasks for better readability
+                                display_tasks = relevant_tasks
+                                
+                                with st.expander(f"📋 Erőforrás feladatai ({len(display_tasks)} feladat)", expanded=False):
+                                    for task_info in display_tasks:
+                                        status_icon = "✅" if task_info['is_completed'] else "⏳"
+                                        st.write(f"{status_icon} {task_info['task_name']}")
+                                
+                            else:
+                                st.info("Nincsenek feladatok, amelyek ehhez az erőforráshoz tartoznának.")
+                        else:
+                            st.info("Nincsenek megadva fázisok ehhez a projekthez.")
+                        
+                        st.markdown("---")
                 else:
                     st.info("Ez az erőforrás még nem vett részt egyetlen projektben sem.")
             
