@@ -353,9 +353,12 @@ if location_groups:
                     "Helyszín": locations_text,
                 })
             
-            # Display the table using st.table
+            # Display the table using st.table with index starting from 1
             if table_data:
-                st.table(table_data)
+                import pandas as pd
+                df = pd.DataFrame(table_data)
+                df.index = df.index + 1  # Start index from 1
+                st.table(df)
             else:
                 st.info("Nincsenek hozzárendelt erőforrások.")
         else:
