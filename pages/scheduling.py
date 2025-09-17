@@ -314,7 +314,9 @@ if location_groups:
             else:
                 st.info("Nincs feladat az időszakban.")
 
-    with tab2:        
+    with tab2:
+        st.subheader("👥 Erőforrás-helyszín táblázat")
+        
         # Get all available resources (excluding suppliers)
         available_resources = [
             r for r in st.session_state.resources 
@@ -354,26 +356,9 @@ if location_groups:
                     "Helyszín": locations_text,
                 })
             
-            # Display the table
+            # Display the table using st.table
             if table_data:
-                # Create columns for the table
-                col1, col2 = st.columns([2, 2])
-                
-                with col1:
-                    st.markdown("**Erőforrás**")
-                with col2:
-                    st.markdown("**Helyszín**")
-                
-                st.markdown("---")
-                
-                # Display each row
-                for row in table_data:
-                    col1, col2 = st.columns([2, 2])
-                    
-                    with col1:
-                        st.write(row["Erőforrás"])
-                    with col2:
-                        st.write(row["Helyszín"])
+                st.table(table_data)
             else:
                 st.info("Nincsenek hozzárendelt erőforrások.")
         else:
