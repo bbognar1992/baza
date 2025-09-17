@@ -119,9 +119,9 @@ def get_available_resources_for_task(task_profession, used_resources):
     
     return available_resources
 
-def get_all_task_rows():
-    """Get all tasks from all projects as rows for the table"""
-    rows = []
+def get_tasks_grouped_by_location():
+    """Get all tasks grouped by location"""
+    location_groups = {}
     phases = get_default_phases()
     
     projects_in_progress = [
@@ -156,19 +156,28 @@ def get_all_task_rows():
         
         for i, task in enumerate(actual_tasks):
             task_profession = get_task_profession(task, phases)
+            location = locations[0] if locations else "Helyszín nincs megadva"
             
-            rows.append({
+            # Group by location
+            if location not in location_groups:
+                location_groups[location] = {
+                    "weather_summary": weather_summary,
+                    "can_progress": can_progress,
+                    "tasks": []
+                }
+            
+            location_groups[location]["tasks"].append({
                 "Projekt": project_name,
                 "Feladat": task,
                 "Szükséges szakma": task_profession or "Nincs megadva",
-                "Helyszín": locations[0] if locations else "-",
+                "Helyszín": location,
                 "Időjárás": weather_summary,
                 "Haladhat": can_progress,
                 "Projekt méret": project.get("size", "Nincs megadva"),
                 "task_id": f"{project_name}_{i}_{task}"
             })
     
-    return rows
+    return location_groups
 
 
 ensure_base_session_state(st)
@@ -216,101 +225,96 @@ if not projects_in_progress:
     st.stop()
 
 
-# Get all task rows
-rows = get_all_task_rows()
+# Get tasks grouped by location
+location_groups = get_tasks_grouped_by_location()
 
 # Initialize task assignments in session state if not exists
 if "task_assignments" not in st.session_state:
     st.session_state.task_assignments = {}
 
-# Display tasks in table format
-st.subheader("📊 Feladatok következő nap ütemezése")
+# Display tasks in separate tables by location
+st.subheader("📊 Feladatok következő nap ütemezése (helyszín szerint csoportosítva)")
 
-if rows:
+if location_groups:
     # Get currently used resources from session state
     used_resources = get_used_resources_from_session()
     
     # Create a form for all assignments
     with st.form("task_assignments_form"):
-        # Create table headers
-        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([2, 2, 2, 1.5, 2, 1, 1.5, 2])
-        
-        with col1:
-            st.markdown("**Projekt**")
-        with col2:
-            st.markdown("**Feladat**")
-        with col3:
-            st.markdown("**Szükséges szakma**")
-        with col4:
-            st.markdown("**Helyszín**")
-        with col5:
-            st.markdown("**Időjárás**")
-        with col6:
-            st.markdown("**Haladhat**")
-        with col7:
-            st.markdown("**Projekt méret**")
-        with col8:
-            st.markdown("**Hozzárendelt szakemberek**")
-        
-        st.markdown("---")
-        
-        # Display each task as a row
-        for row in rows:
-            col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([2, 2, 2, 1.5, 2, 1, 1.5, 2])
+        # Display each location as a separate table
+        for location, location_data in location_groups.items():
+            tasks = location_data["tasks"]
+            weather_summary = location_data["weather_summary"]
+            can_progress = location_data["can_progress"]
+            
+            # Location header with weather info
+            status_icon = "✅" if can_progress else "⚠️"
+            st.markdown(f"### 📍 {location} {status_icon}")
+            
+            if weather_summary != "Helyszín nincs megadva":
+                st.caption(f"Időjárás: {weather_summary}")
+            
+            # Create table for this location
+            col1, col2, col3 = st.columns([2, 2, 2])
             
             with col1:
-                st.write(row["Projekt"])
+                st.markdown("**Projekt**")
             with col2:
-                st.write(row["Feladat"])
+                st.markdown("**Feladat**")
             with col3:
-                st.write(row["Szükséges szakma"])
-            with col4:
-                st.write(row["Helyszín"])
-            with col5:
-                st.write(row["Időjárás"])
-            with col6:
-                status_icon = "✅" if row["Haladhat"] else "⚠️"
-                st.write(status_icon)
-            with col7:
-                st.write(row["Projekt méret"])
-            with col8:
-                # Get available resources for this task
-                task_profession = row["Szükséges szakma"]
-                available_resources = get_available_resources_for_task(task_profession, used_resources)
+                st.markdown("**Hozzárendelt szakemberek**")
+            
+            st.markdown("---")
+            
+            # Display each task as a row
+            for row in tasks:
+                col1, col2, col3 = st.columns([2, 2, 2])
                 
-                if available_resources:
-                    # Create resource options
-                    resource_options = [f"{r.get('Név', '')} ({r.get('Pozíció', 'Ismeretlen')})" for r in available_resources]
+                with col1:
+                    st.write(row["Projekt"])
+                with col2:
+                    st.write(row["Feladat"])
+                with col3:
+                    # Get available resources for this task
+                    task_profession = row["Szükséges szakma"]
+                    available_resources = get_available_resources_for_task(task_profession, used_resources)
                     
-                    # Get current assignments for this task
-                    task_id = row["task_id"]
-                    current_assignments = st.session_state.task_assignments.get(task_id, [])
-                    
-                    # Ensure current_assignments is a list
-                    if not isinstance(current_assignments, list):
-                        current_assignments = []
-                    
-                    # Resource assignment multi-select
-                    selected_resources = st.multiselect(
-                        "",
-                        options=resource_options,
-                        default=current_assignments,
-                        key=f"assign_{task_id}",
-                        label_visibility="collapsed"
-                    )
-                else:
-                    st.write("Nincs elérhető szakember")
+                    if available_resources:
+                        # Create resource options
+                        resource_options = [f"{r.get('Név', '')} ({r.get('Pozíció', 'Ismeretlen')})" for r in available_resources]
+                        
+                        # Get current assignments for this task
+                        task_id = row["task_id"]
+                        current_assignments = st.session_state.task_assignments.get(task_id, [])
+                        
+                        # Ensure current_assignments is a list
+                        if not isinstance(current_assignments, list):
+                            current_assignments = []
+                        
+                        # Resource assignment multi-select
+                        selected_resources = st.multiselect(
+                            "",
+                            options=resource_options,
+                            default=current_assignments,
+                            key=f"assign_{task_id}",
+                            label_visibility="collapsed"
+                        )
+                    else:
+                        st.write("Nincs elérhető szakember")
+            
+            st.markdown("")  # Add spacing between location tables
         
         # Single save button for all assignments
         submitted = st.form_submit_button("💾 Összes hozzárendelés mentése", type="primary")
         
         if submitted:
-            # Update session state with all selections
-            for row in rows:
-                task_id = row["task_id"]
-                multiselect_key = f"assign_{task_id}"
-                if multiselect_key in st.session_state:
-                    st.session_state.task_assignments[task_id] = st.session_state[multiselect_key]
+            # Update session state with all selections from all locations
+            for location, location_data in location_groups.items():
+                for row in location_data["tasks"]:
+                    task_id = row["task_id"]
+                    multiselect_key = f"assign_{task_id}"
+                    if multiselect_key in st.session_state:
+                        st.session_state.task_assignments[task_id] = st.session_state[multiselect_key]
             st.success("✅ Összes hozzárendelés mentve!")
             st.rerun()
 else:
@@ -351,7 +355,7 @@ if "task_assignments" in st.session_state and st.session_state.task_assignments:
             with st.expander(f"📁 {project_name}", expanded=False):
                 for task_info in tasks:
                     st.write(f"**{task_info['task']}:** {', '.join(task_info['resources'])}")
-    else:
-        st.info("Nincsenek aktív hozzárendelések.")
+                else:
+                    st.info("Nincsenek aktív hozzárendelések.")
 
 
