@@ -17,9 +17,9 @@ handle_user_not_logged_in()
 # Render sidebar navigation
 render_sidebar_navigation()
 
-st.title("📅 Következő nap ütemezése")
+st.title("📅 Ütemezése")
 
-st.write("A következő munkanap előrejelzése alapján megmutatjuk, mely projektek tudnak haladni.")
+st.write("Az erőforrások hozzárendelése a kiválasztott dátumtól kezdve történik. Amint egy erőforrás egy feladathoz lett rendelve, a befejezésig vagy módosításig azon a feladaton marad.")
 
 
 def get_random_tasks():
@@ -184,10 +184,7 @@ ensure_base_session_state(st)
 
 col_a, col_b = st.columns([1, 2])
 with col_a:
-    current_date = st.date_input("Mai dátum", value=date.today())
-    next_working_day = get_next_working_day(current_date)
-with col_b:
-    st.caption(f"Következő munkanap: {next_working_day.strftime('%Y-%m-%d (%A)')}")
+    current_date = st.date_input("Dátum kiválasztása", value=date.today())
 
 if not st.session_state.projects:
     st.info("Nincs projekt a rendszerben. Adj hozzá projekteket a Projektek oldalon.")
