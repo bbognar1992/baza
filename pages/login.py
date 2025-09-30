@@ -11,6 +11,14 @@ st.set_page_config(
 # Initialize session state
 ensure_base_session_state(st)
 
+st.markdown('''
+<style>
+.stApp [data-testid="stToolbar"]{
+    display:none;
+}
+</style>
+''', unsafe_allow_html=True)
+
 def check_login(username, password):
     """Check login credentials"""
     # Replace this with your actual login logic (database, API calls, etc.)
@@ -23,7 +31,11 @@ def login_page():
         col1, col2, col3 = st.columns([1, 2, 1])
 
         with col2:
-            
+            # Logo
+            with st.container(border=False):
+                left_co, cent_co,last_co = st.columns(3)
+                with cent_co:
+                    st.image("assets/logo_sm.png", use_container_width=True)
             
             # Login form using st.form for better UX
             with st.form("login_form"):
@@ -64,16 +76,6 @@ def login_page():
                     else:
                         st.error("❌ Hibás felhasználónév vagy jelszó")
             
-            # Additional info section
-            st.markdown("---")
-            
-            st.info("Teszt felhasználó: admin / admin")
-            
-            # Footer
-            st.markdown("---")
-            col_footer1, col_footer2, col_footer3 = st.columns(3)
-            with col_footer2:
-                st.caption("© 2024 ÉpítAI - Construction Management System")
 
 if __name__ == "__main__":
     # Check if user is already logged in
