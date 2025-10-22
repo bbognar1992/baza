@@ -1,5 +1,7 @@
 import streamlit as st
 from default_data import ensure_base_session_state
+from database import get_db_session
+from models.user import User
 
 # Configure page
 st.set_page_config(
@@ -19,10 +21,27 @@ st.markdown('''
 </style>
 ''', unsafe_allow_html=True)
 
-def check_login(username, password):
-    """Check login credentials"""
-    # Replace this with your actual login logic (database, API calls, etc.)
-    return username == "admin" and password == "admin"
+def check_login(email, password):
+    """Check login credentials against database"""
+    try:
+        with get_db_session() as session:
+            # Find user by email
+            user = session.query(User).filter(User.email == email).first()
+            
+            if user and user.check_password(password):
+                # Store user info in session state
+                st.session_state.current_user = {
+                    'user_id': user.user_id,
+                    'email': user.email,
+                    'full_name': user.full_name,
+                    'role': user.role,
+                    'department': user.department
+                }
+                return True
+            return False
+    except Exception as e:
+        st.error(f"Database error: {str(e)}")
+        return False
 
 def login_page():
     """Modern login page using only Streamlit components"""
@@ -42,11 +61,11 @@ def login_page():
                 st.markdown("### 🔐 Bejelentkezés")
                 
                 # Input fields
-                username = st.text_input(
-                    "Felhasználónév", 
-                    key="username_input",
-                    placeholder="Adja meg a felhasználónevet",
-                    help="Írja be a felhasználónevét"
+                email = st.text_input(
+                    "E-mail", 
+                    key="email_input",
+                    placeholder="Adja meg a e-mail címét",
+                    help="Írja be a e-mail címét"
                 )
                 
                 password = st.text_input(
@@ -68,13 +87,13 @@ def login_page():
                 
                 # Login logic
                 if login_btn:
-                    if check_login(username, password):
+                    if check_login(email, password):
                         st.success("✅ Sikeres bejelentkezés!")
                         st.balloons()
                         st.session_state.user_logged_in = True
                         st.switch_page("pages/home.py")
                     else:
-                        st.error("❌ Hibás felhasználónév vagy jelszó")
+                        st.error("❌ Hibás e-mail cím vagy jelszó")
             
 
 if __name__ == "__main__":
