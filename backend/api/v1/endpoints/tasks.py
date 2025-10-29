@@ -15,11 +15,13 @@ from app.database import get_db
 from models.task import Task
 from models.project_task import ProjectTask
 from models.task_assignment import TaskAssignment
+from models.user import User
 from schemas.task import (
     TaskCreate, TaskUpdate, TaskResponse, TaskList,
     ProjectTaskCreate, ProjectTaskUpdate, ProjectTaskResponse,
     TaskAssignmentCreate, TaskAssignmentUpdate, TaskAssignmentResponse
 )
+from core.security import get_current_active_user
 
 router = APIRouter()
 
@@ -29,7 +31,8 @@ async def get_tasks(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     phase_id: Optional[int] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all tasks with pagination and optional filtering"""
     query = db.query(Task)
@@ -49,7 +52,7 @@ async def get_tasks(
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
-async def get_task(task_id: int, db: Session = Depends(get_db)):
+async def get_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get a specific task by ID"""
     task = db.query(Task).filter(Task.task_id == task_id).first()
     if not task:
@@ -58,7 +61,7 @@ async def get_task(task_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=TaskResponse)
-async def create_task(task: TaskCreate, db: Session = Depends(get_db)):
+async def create_task(task: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Create a new task"""
     db_task = Task(**task.dict())
     db.add(db_task)
@@ -69,7 +72,7 @@ async def create_task(task: TaskCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{task_id}", response_model=TaskResponse)
-async def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get_db)):
+async def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Update a task"""
     task = db.query(Task).filter(Task.task_id == task_id).first()
     if not task:
@@ -86,7 +89,7 @@ async def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depen
 
 
 @router.delete("/{task_id}")
-async def delete_task(task_id: int, db: Session = Depends(get_db)):
+async def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Delete a task"""
     task = db.query(Task).filter(Task.task_id == task_id).first()
     if not task:
@@ -100,7 +103,7 @@ async def delete_task(task_id: int, db: Session = Depends(get_db)):
 
 # Project Tasks endpoints
 @router.get("/projects/{project_phase_id}/tasks", response_model=List[ProjectTaskResponse])
-async def get_project_tasks(project_phase_id: int, db: Session = Depends(get_db)):
+async def get_project_tasks(project_phase_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get all tasks for a project phase"""
     tasks = db.query(ProjectTask).filter(ProjectTask.project_phase_id == project_phase_id).all()
     return [ProjectTaskResponse.from_orm(task) for task in tasks]
@@ -110,7 +113,8 @@ async def get_project_tasks(project_phase_id: int, db: Session = Depends(get_db)
 async def create_project_task(
     project_phase_id: int, 
     task: ProjectTaskCreate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Create a new project task"""
     db_task = ProjectTask(project_phase_id=project_phase_id, **task.dict())
@@ -125,7 +129,8 @@ async def create_project_task(
 async def update_project_task(
     project_task_id: int, 
     task_update: ProjectTaskUpdate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Update a project task"""
     task = db.query(ProjectTask).filter(ProjectTask.project_task_id == project_task_id).first()
@@ -144,7 +149,7 @@ async def update_project_task(
 
 # Task Assignments endpoints
 @router.get("/assignments/{project_task_id}", response_model=List[TaskAssignmentResponse])
-async def get_task_assignments(project_task_id: int, db: Session = Depends(get_db)):
+async def get_task_assignments(project_task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get all assignments for a project task"""
     assignments = db.query(TaskAssignment).filter(TaskAssignment.project_task_id == project_task_id).all()
     return [TaskAssignmentResponse.from_orm(assignment) for assignment in assignments]
@@ -153,7 +158,8 @@ async def get_task_assignments(project_task_id: int, db: Session = Depends(get_d
 @router.post("/assignments", response_model=TaskAssignmentResponse)
 async def create_task_assignment(
     assignment: TaskAssignmentCreate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Create a new task assignment"""
     db_assignment = TaskAssignment(**assignment.dict())
@@ -168,7 +174,8 @@ async def create_task_assignment(
 async def update_task_assignment(
     assignment_id: int, 
     assignment_update: TaskAssignmentUpdate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Update a task assignment"""
     assignment = db.query(TaskAssignment).filter(TaskAssignment.assignment_id == assignment_id).first()

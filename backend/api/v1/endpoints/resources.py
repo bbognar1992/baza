@@ -13,7 +13,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 
 from app.database import get_db
 from models.resource import Resource
+from models.user import User
 from schemas.resource import ResourceCreate, ResourceUpdate, ResourceResponse, ResourceList
+from core.security import get_current_active_user
 
 router = APIRouter()
 
@@ -24,7 +26,8 @@ async def get_resources(
     limit: int = Query(20, ge=1, le=100),
     type: Optional[str] = None,
     availability: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all resources with pagination and optional filtering"""
     query = db.query(Resource)
@@ -46,7 +49,7 @@ async def get_resources(
 
 
 @router.get("/{resource_id}", response_model=ResourceResponse)
-async def get_resource(resource_id: int, db: Session = Depends(get_db)):
+async def get_resource(resource_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get a specific resource by ID"""
     resource = db.query(Resource).filter(Resource.resource_id == resource_id).first()
     if not resource:
@@ -55,7 +58,7 @@ async def get_resource(resource_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=ResourceResponse)
-async def create_resource(resource: ResourceCreate, db: Session = Depends(get_db)):
+async def create_resource(resource: ResourceCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Create a new resource"""
     db_resource = Resource(**resource.dict())
     db.add(db_resource)
@@ -66,7 +69,7 @@ async def create_resource(resource: ResourceCreate, db: Session = Depends(get_db
 
 
 @router.put("/{resource_id}", response_model=ResourceResponse)
-async def update_resource(resource_id: int, resource_update: ResourceUpdate, db: Session = Depends(get_db)):
+async def update_resource(resource_id: int, resource_update: ResourceUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Update a resource"""
     resource = db.query(Resource).filter(Resource.resource_id == resource_id).first()
     if not resource:
@@ -83,7 +86,7 @@ async def update_resource(resource_id: int, resource_update: ResourceUpdate, db:
 
 
 @router.delete("/{resource_id}")
-async def delete_resource(resource_id: int, db: Session = Depends(get_db)):
+async def delete_resource(resource_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Delete a resource"""
     resource = db.query(Resource).filter(Resource.resource_id == resource_id).first()
     if not resource:

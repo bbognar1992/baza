@@ -13,7 +13,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 
 from app.database import get_db
 from models.profession_type import ProfessionType
+from models.user import User
 from schemas.profession_type import ProfessionTypeCreate, ProfessionTypeUpdate, ProfessionTypeResponse, ProfessionTypeList
+from core.security import get_current_active_user
 
 router = APIRouter()
 
@@ -23,7 +25,8 @@ async def get_profession_types(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     level: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all profession types with pagination and optional filtering"""
     query = db.query(ProfessionType)
@@ -43,7 +46,7 @@ async def get_profession_types(
 
 
 @router.get("/{profession_type_id}", response_model=ProfessionTypeResponse)
-async def get_profession_type(profession_type_id: int, db: Session = Depends(get_db)):
+async def get_profession_type(profession_type_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get a specific profession type by ID"""
     profession_type = db.query(ProfessionType).filter(ProfessionType.profession_type_id == profession_type_id).first()
     if not profession_type:
@@ -52,7 +55,7 @@ async def get_profession_type(profession_type_id: int, db: Session = Depends(get
 
 
 @router.post("/", response_model=ProfessionTypeResponse)
-async def create_profession_type(profession_type: ProfessionTypeCreate, db: Session = Depends(get_db)):
+async def create_profession_type(profession_type: ProfessionTypeCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Create a new profession type"""
     # Check if name already exists
     existing = db.query(ProfessionType).filter(ProfessionType.name == profession_type.name).first()
@@ -68,7 +71,7 @@ async def create_profession_type(profession_type: ProfessionTypeCreate, db: Sess
 
 
 @router.put("/{profession_type_id}", response_model=ProfessionTypeResponse)
-async def update_profession_type(profession_type_id: int, profession_type_update: ProfessionTypeUpdate, db: Session = Depends(get_db)):
+async def update_profession_type(profession_type_id: int, profession_type_update: ProfessionTypeUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Update a profession type"""
     profession_type = db.query(ProfessionType).filter(ProfessionType.profession_type_id == profession_type_id).first()
     if not profession_type:
@@ -85,7 +88,7 @@ async def update_profession_type(profession_type_id: int, profession_type_update
 
 
 @router.delete("/{profession_type_id}")
-async def delete_profession_type(profession_type_id: int, db: Session = Depends(get_db)):
+async def delete_profession_type(profession_type_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Delete a profession type"""
     profession_type = db.query(ProfessionType).filter(ProfessionType.profession_type_id == profession_type_id).first()
     if not profession_type:

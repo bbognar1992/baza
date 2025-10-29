@@ -5,6 +5,7 @@ User API endpoints
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from datetime import timedelta
 import sys
 import os
 
@@ -15,6 +16,8 @@ from app.database import get_db
 from models.user import User
 from schemas.user import UserCreate, UserUpdate, UserResponse, UserList
 from services.user_service import UserService
+from core.security import create_access_token, get_current_active_user
+from core.config import settings
 
 router = APIRouter()
 
@@ -32,7 +35,8 @@ async def get_users(
     department: Optional[str] = Query(None, description="Filter by department"),
     status: Optional[str] = Query(None, description="Filter by status"),
     search: Optional[str] = Query(None, description="Search by name or email"),
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all users with pagination and filtering"""
     # Build filters
@@ -64,7 +68,8 @@ async def get_users(
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: int, 
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get a specific user by ID"""
     user = user_service.get_user_by_id(user_id)
@@ -76,7 +81,8 @@ async def get_user(
 @router.post("/", response_model=UserResponse)
 async def create_user(
     user: UserCreate, 
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Create a new user"""
     db_user = user_service.create_user(user)
@@ -87,7 +93,8 @@ async def create_user(
 async def update_user(
     user_id: int, 
     user_update: UserUpdate, 
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Update a user"""
     user = user_service.update_user(user_id, user_update)
@@ -99,7 +106,8 @@ async def update_user(
 @router.delete("/{user_id}")
 async def delete_user(
     user_id: int, 
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Delete a user"""
     success = user_service.delete_user(user_id)
@@ -114,7 +122,8 @@ async def get_users_by_role(
     role: str,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get users by role"""
     users = user_service.get_users_by_role(role, skip, limit)
@@ -133,7 +142,8 @@ async def get_users_by_department(
     department: str,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get users by department"""
     users = user_service.get_users_by_department(department, skip, limit)
@@ -151,7 +161,8 @@ async def get_users_by_department(
 async def get_active_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get active users only"""
     users = user_service.get_active_users(skip, limit)
@@ -167,7 +178,8 @@ async def get_active_users(
 
 @router.get("/stats/")
 async def get_user_statistics(
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get user statistics"""
     return user_service.get_user_statistics()
@@ -184,7 +196,15 @@ async def authenticate_user(
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
+    # Create access token
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": str(user.user_id)}, expires_delta=access_token_expires
+    )
+    
     return {
+        "access_token": access_token,
+        "token_type": "bearer",
         "user": UserResponse.from_orm(user),
         "message": "Authentication successful"
     }

@@ -14,7 +14,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 
 from app.database import get_db
 from models.weather_data import WeatherData
+from models.user import User
 from schemas.weather import WeatherDataCreate, WeatherDataUpdate, WeatherDataResponse, WeatherDataList
+from core.security import get_current_active_user
 
 router = APIRouter()
 
@@ -26,7 +28,8 @@ async def get_weather_data(
     location: Optional[str] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all weather data with pagination and optional filtering"""
     query = db.query(WeatherData)
@@ -50,7 +53,7 @@ async def get_weather_data(
 
 
 @router.get("/{weather_id}", response_model=WeatherDataResponse)
-async def get_weather_data_by_id(weather_id: int, db: Session = Depends(get_db)):
+async def get_weather_data_by_id(weather_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get specific weather data by ID"""
     weather = db.query(WeatherData).filter(WeatherData.weather_id == weather_id).first()
     if not weather:
@@ -59,7 +62,7 @@ async def get_weather_data_by_id(weather_id: int, db: Session = Depends(get_db))
 
 
 @router.get("/location/{location}/date/{date}", response_model=WeatherDataResponse)
-async def get_weather_by_location_and_date(location: str, date: date, db: Session = Depends(get_db)):
+async def get_weather_by_location_and_date(location: str, date: date, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get weather data by location and date"""
     weather = db.query(WeatherData).filter(
         WeatherData.location == location,
@@ -71,7 +74,7 @@ async def get_weather_by_location_and_date(location: str, date: date, db: Sessio
 
 
 @router.post("/", response_model=WeatherDataResponse)
-async def create_weather_data(weather: WeatherDataCreate, db: Session = Depends(get_db)):
+async def create_weather_data(weather: WeatherDataCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Create new weather data"""
     # Check if weather data already exists for this location and date
     existing = db.query(WeatherData).filter(
@@ -90,7 +93,7 @@ async def create_weather_data(weather: WeatherDataCreate, db: Session = Depends(
 
 
 @router.put("/{weather_id}", response_model=WeatherDataResponse)
-async def update_weather_data(weather_id: int, weather_update: WeatherDataUpdate, db: Session = Depends(get_db)):
+async def update_weather_data(weather_id: int, weather_update: WeatherDataUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Update weather data"""
     weather = db.query(WeatherData).filter(WeatherData.weather_id == weather_id).first()
     if not weather:
@@ -107,7 +110,7 @@ async def update_weather_data(weather_id: int, weather_update: WeatherDataUpdate
 
 
 @router.delete("/{weather_id}")
-async def delete_weather_data(weather_id: int, db: Session = Depends(get_db)):
+async def delete_weather_data(weather_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Delete weather data"""
     weather = db.query(WeatherData).filter(WeatherData.weather_id == weather_id).first()
     if not weather:

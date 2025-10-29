@@ -14,10 +14,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 from app.database import get_db
 from models.phase import Phase
 from models.project_phase import ProjectPhase
+from models.user import User
 from schemas.phase import (
     PhaseCreate, PhaseUpdate, PhaseResponse, PhaseList,
     ProjectPhaseCreate, ProjectPhaseUpdate, ProjectPhaseResponse
 )
+from core.security import get_current_active_user
 
 router = APIRouter()
 
@@ -27,7 +29,8 @@ async def get_phases(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     project_type_id: Optional[int] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all phases with pagination and optional filtering"""
     query = db.query(Phase)
@@ -47,7 +50,7 @@ async def get_phases(
 
 
 @router.get("/{phase_id}", response_model=PhaseResponse)
-async def get_phase(phase_id: int, db: Session = Depends(get_db)):
+async def get_phase(phase_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get a specific phase by ID"""
     phase = db.query(Phase).filter(Phase.phase_id == phase_id).first()
     if not phase:
@@ -56,7 +59,7 @@ async def get_phase(phase_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=PhaseResponse)
-async def create_phase(phase: PhaseCreate, db: Session = Depends(get_db)):
+async def create_phase(phase: PhaseCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Create a new phase"""
     db_phase = Phase(**phase.dict())
     db.add(db_phase)
@@ -67,7 +70,7 @@ async def create_phase(phase: PhaseCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{phase_id}", response_model=PhaseResponse)
-async def update_phase(phase_id: int, phase_update: PhaseUpdate, db: Session = Depends(get_db)):
+async def update_phase(phase_id: int, phase_update: PhaseUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Update a phase"""
     phase = db.query(Phase).filter(Phase.phase_id == phase_id).first()
     if not phase:
@@ -84,7 +87,7 @@ async def update_phase(phase_id: int, phase_update: PhaseUpdate, db: Session = D
 
 
 @router.delete("/{phase_id}")
-async def delete_phase(phase_id: int, db: Session = Depends(get_db)):
+async def delete_phase(phase_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Delete a phase"""
     phase = db.query(Phase).filter(Phase.phase_id == phase_id).first()
     if not phase:
@@ -98,7 +101,7 @@ async def delete_phase(phase_id: int, db: Session = Depends(get_db)):
 
 # Project Phases endpoints
 @router.get("/projects/{project_id}/phases", response_model=List[ProjectPhaseResponse])
-async def get_project_phases(project_id: int, db: Session = Depends(get_db)):
+async def get_project_phases(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get all phases for a project"""
     phases = db.query(ProjectPhase).filter(ProjectPhase.project_id == project_id).all()
     return [ProjectPhaseResponse.from_orm(phase) for phase in phases]
@@ -108,7 +111,8 @@ async def get_project_phases(project_id: int, db: Session = Depends(get_db)):
 async def create_project_phase(
     project_id: int, 
     phase: ProjectPhaseCreate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Create a new project phase"""
     db_phase = ProjectPhase(project_id=project_id, **phase.dict())
@@ -123,7 +127,8 @@ async def create_project_phase(
 async def update_project_phase(
     project_phase_id: int, 
     phase_update: ProjectPhaseUpdate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Update a project phase"""
     phase = db.query(ProjectPhase).filter(ProjectPhase.project_phase_id == project_phase_id).first()

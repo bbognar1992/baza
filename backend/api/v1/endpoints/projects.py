@@ -13,11 +13,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 
 from app.database import get_db
 from models.project import Project, ProjectLocation, ProjectMember
+from models.user import User
 from schemas.project import (
     ProjectCreate, ProjectUpdate, ProjectResponse, ProjectList,
     ProjectLocationCreate, ProjectLocationResponse,
     ProjectMemberCreate, ProjectMemberResponse
 )
+from core.security import get_current_active_user
 
 router = APIRouter()
 
@@ -27,7 +29,8 @@ async def get_projects(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     status: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all projects with pagination and optional filtering"""
     query = db.query(Project)
@@ -47,7 +50,7 @@ async def get_projects(
 
 
 @router.get("/{project_id}", response_model=ProjectResponse)
-async def get_project(project_id: int, db: Session = Depends(get_db)):
+async def get_project(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get a specific project by ID"""
     project = db.query(Project).filter(Project.project_id == project_id).first()
     if not project:
@@ -56,7 +59,7 @@ async def get_project(project_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=ProjectResponse)
-async def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
+async def create_project(project: ProjectCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Create a new project"""
     # Check if project code already exists
     if project.project_code:
@@ -73,7 +76,7 @@ async def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{project_id}", response_model=ProjectResponse)
-async def update_project(project_id: int, project_update: ProjectUpdate, db: Session = Depends(get_db)):
+async def update_project(project_id: int, project_update: ProjectUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Update a project"""
     project = db.query(Project).filter(Project.project_id == project_id).first()
     if not project:
@@ -90,7 +93,7 @@ async def update_project(project_id: int, project_update: ProjectUpdate, db: Ses
 
 
 @router.delete("/{project_id}")
-async def delete_project(project_id: int, db: Session = Depends(get_db)):
+async def delete_project(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Delete a project"""
     project = db.query(Project).filter(Project.project_id == project_id).first()
     if not project:
@@ -104,7 +107,7 @@ async def delete_project(project_id: int, db: Session = Depends(get_db)):
 
 # Project Locations endpoints
 @router.get("/{project_id}/locations", response_model=List[ProjectLocationResponse])
-async def get_project_locations(project_id: int, db: Session = Depends(get_db)):
+async def get_project_locations(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get all locations for a project"""
     locations = db.query(ProjectLocation).filter(ProjectLocation.project_id == project_id).all()
     return [ProjectLocationResponse.from_orm(location) for location in locations]
@@ -114,7 +117,8 @@ async def get_project_locations(project_id: int, db: Session = Depends(get_db)):
 async def create_project_location(
     project_id: int, 
     location: ProjectLocationCreate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Create a new project location"""
     db_location = ProjectLocation(project_id=project_id, **location.dict())
@@ -127,7 +131,7 @@ async def create_project_location(
 
 # Project Members endpoints
 @router.get("/{project_id}/members", response_model=List[ProjectMemberResponse])
-async def get_project_members(project_id: int, db: Session = Depends(get_db)):
+async def get_project_members(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get all members for a project"""
     members = db.query(ProjectMember).filter(ProjectMember.project_id == project_id).all()
     return [ProjectMemberResponse.from_orm(member) for member in members]
@@ -137,7 +141,8 @@ async def get_project_members(project_id: int, db: Session = Depends(get_db)):
 async def create_project_member(
     project_id: int, 
     member: ProjectMemberCreate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Add a member to a project"""
     db_member = ProjectMember(project_id=project_id, **member.dict())

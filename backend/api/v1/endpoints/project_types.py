@@ -13,7 +13,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 
 from app.database import get_db
 from models.project_type import ProjectType
+from models.user import User
 from schemas.project_type import ProjectTypeCreate, ProjectTypeUpdate, ProjectTypeResponse, ProjectTypeList
+from core.security import get_current_active_user
 
 router = APIRouter()
 
@@ -22,7 +24,8 @@ router = APIRouter()
 async def get_project_types(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all project types with pagination"""
     project_types = db.query(ProjectType).offset(skip).limit(limit).all()
@@ -37,7 +40,7 @@ async def get_project_types(
 
 
 @router.get("/{project_type_id}", response_model=ProjectTypeResponse)
-async def get_project_type(project_type_id: int, db: Session = Depends(get_db)):
+async def get_project_type(project_type_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get a specific project type by ID"""
     project_type = db.query(ProjectType).filter(ProjectType.project_type_id == project_type_id).first()
     if not project_type:
@@ -46,7 +49,7 @@ async def get_project_type(project_type_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=ProjectTypeResponse)
-async def create_project_type(project_type: ProjectTypeCreate, db: Session = Depends(get_db)):
+async def create_project_type(project_type: ProjectTypeCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Create a new project type"""
     # Check if name already exists
     existing = db.query(ProjectType).filter(ProjectType.name == project_type.name).first()
@@ -62,7 +65,7 @@ async def create_project_type(project_type: ProjectTypeCreate, db: Session = Dep
 
 
 @router.put("/{project_type_id}", response_model=ProjectTypeResponse)
-async def update_project_type(project_type_id: int, project_type_update: ProjectTypeUpdate, db: Session = Depends(get_db)):
+async def update_project_type(project_type_id: int, project_type_update: ProjectTypeUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Update a project type"""
     project_type = db.query(ProjectType).filter(ProjectType.project_type_id == project_type_id).first()
     if not project_type:
@@ -79,7 +82,7 @@ async def update_project_type(project_type_id: int, project_type_update: Project
 
 
 @router.delete("/{project_type_id}")
-async def delete_project_type(project_type_id: int, db: Session = Depends(get_db)):
+async def delete_project_type(project_type_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Delete a project type"""
     project_type = db.query(ProjectType).filter(ProjectType.project_type_id == project_type_id).first()
     if not project_type:

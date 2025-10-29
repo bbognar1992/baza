@@ -13,10 +13,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
 
 from app.database import get_db
 from models.material import Material, ProjectMaterial
+from models.user import User
 from schemas.material import (
     MaterialCreate, MaterialUpdate, MaterialResponse, MaterialList,
     ProjectMaterialCreate, ProjectMaterialUpdate, ProjectMaterialResponse
 )
+from core.security import get_current_active_user
 
 router = APIRouter()
 
@@ -27,7 +29,8 @@ async def get_materials(
     limit: int = Query(20, ge=1, le=100),
     category: Optional[str] = None,
     status: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all materials with pagination and optional filtering"""
     query = db.query(Material)
@@ -49,7 +52,7 @@ async def get_materials(
 
 
 @router.get("/{material_id}", response_model=MaterialResponse)
-async def get_material(material_id: int, db: Session = Depends(get_db)):
+async def get_material(material_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get a specific material by ID"""
     material = db.query(Material).filter(Material.material_id == material_id).first()
     if not material:
@@ -58,7 +61,7 @@ async def get_material(material_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=MaterialResponse)
-async def create_material(material: MaterialCreate, db: Session = Depends(get_db)):
+async def create_material(material: MaterialCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Create a new material"""
     db_material = Material(**material.dict())
     db.add(db_material)
@@ -69,7 +72,7 @@ async def create_material(material: MaterialCreate, db: Session = Depends(get_db
 
 
 @router.put("/{material_id}", response_model=MaterialResponse)
-async def update_material(material_id: int, material_update: MaterialUpdate, db: Session = Depends(get_db)):
+async def update_material(material_id: int, material_update: MaterialUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Update a material"""
     material = db.query(Material).filter(Material.material_id == material_id).first()
     if not material:
@@ -86,7 +89,7 @@ async def update_material(material_id: int, material_update: MaterialUpdate, db:
 
 
 @router.delete("/{material_id}")
-async def delete_material(material_id: int, db: Session = Depends(get_db)):
+async def delete_material(material_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Delete a material"""
     material = db.query(Material).filter(Material.material_id == material_id).first()
     if not material:
@@ -100,7 +103,7 @@ async def delete_material(material_id: int, db: Session = Depends(get_db)):
 
 # Project Materials endpoints
 @router.get("/projects/{project_id}/materials", response_model=List[ProjectMaterialResponse])
-async def get_project_materials(project_id: int, db: Session = Depends(get_db)):
+async def get_project_materials(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     """Get all materials for a project"""
     materials = db.query(ProjectMaterial).filter(ProjectMaterial.project_id == project_id).all()
     return [ProjectMaterialResponse.from_orm(material) for material in materials]
@@ -110,7 +113,8 @@ async def get_project_materials(project_id: int, db: Session = Depends(get_db)):
 async def create_project_material(
     project_id: int, 
     material: ProjectMaterialCreate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Add a material to a project"""
     db_material = ProjectMaterial(project_id=project_id, **material.dict())
@@ -125,7 +129,8 @@ async def create_project_material(
 async def update_project_material(
     project_material_id: int, 
     material_update: ProjectMaterialUpdate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Update a project material"""
     material = db.query(ProjectMaterial).filter(ProjectMaterial.project_material_id == project_material_id).first()
