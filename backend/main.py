@@ -25,8 +25,8 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI application
 app = FastAPI(
-    title="Pontum Construction Management API",
-    description="Backend API for construction project management system",
+    title="Pontum API",
+    description="Backend endpoints for Pontum",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
