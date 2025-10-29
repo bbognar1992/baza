@@ -3,7 +3,7 @@ from datetime import date
 from default_data import ensure_base_session_state
 from components.sidebar import render_sidebar_navigation, handle_user_not_logged_in
 
-st.set_page_config(page_title="Anyagár ajánlatkérés AI-val – ÉpítAI", layout="wide")
+st.set_page_config(page_title="Anyagár ajánlatkérés AI-val – Pontum", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)
@@ -60,7 +60,7 @@ if submitted:
                     f"{notes.strip()}\n\n"
                     f"Köszönjük együttműködésüket!\n"
                     f"Üdvözlettel,\n"
-                    f"ÉpítAI rendszer"
+                    f"Pontum rendszer"
                 )
                 st.text_input("Tárgy", value=subject, key=f"rfq_subject_{i}_{name}")
                 st.text_area("Törzs", value=body, height=220, key=f"rfq_body_{i}_{name}")

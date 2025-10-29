@@ -1,5 +1,5 @@
 """
-Project Type model for ÉpítAI Construction Management System
+Project Type model for Pontum Construction Management System
 """
 
 from sqlalchemy import Column, Integer, String, Text

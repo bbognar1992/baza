@@ -1,5 +1,5 @@
 """
-Material models for ÉpítAI Construction Management System
+Material models for Pontum Construction Management System
 """
 
 from sqlalchemy import Column, Integer, String, Text, Numeric, ForeignKey, CheckConstraint, Date

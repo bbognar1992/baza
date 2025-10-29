@@ -141,6 +141,6 @@ Make sure your database is running and accessible. The frontend will connect to 
 
 ## 🎉 Success!
 
-Your ÉpítAI Construction Management Frontend is now ready to use! 
+Your Pontum Construction Management Frontend is now ready to use! 
 
 **Happy coding! 🏗️**

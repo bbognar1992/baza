@@ -7,7 +7,7 @@ import pandas as pd
 
 # Configure page
 st.set_page_config(
-    page_title="ÉpítAI - Üdvözöljük",
+    page_title="Pontum - Üdvözöljük",
     page_icon="🏗️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -23,9 +23,9 @@ def landing_page():
         with col2:
             # Welcome message
             st.markdown("""
-            ### Üdvözöljük az ÉpítAI rendszerben!
+            ### Üdvözöljük az Pontum rendszerben!
             
-            Az ÉpítAI egy modern építőipari projektmenedzsment rendszer, amely segít Önnek 
+            Az Pontum egy modern építőipari projektmenedzsment rendszer, amely segít Önnek 
             hatékonyan kezelni projekteit, erőforrásait és ütemezéseit.
             
             **Főbb funkciók:**
@@ -45,7 +45,7 @@ def landing_page():
             
             # Footer
             st.divider()
-            st.markdown("<div style='text-align: center;'>© 2025 ÉpítAI - Construction Management System</div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align: center;'>© 2025 Pontum - Construction Management System</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     # Check if user is logged in

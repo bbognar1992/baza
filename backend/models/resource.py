@@ -1,5 +1,5 @@
 """
-Resource model for ÉpítAI Construction Management System
+Resource model for Pontum Construction Management System
 """
 
 from sqlalchemy import Column, Integer, String, Text, Numeric, CheckConstraint, ForeignKey

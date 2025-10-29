@@ -4,7 +4,7 @@ from components.sidebar import render_sidebar_navigation, handle_user_not_logged
 
 # Profession types are now handled by ensure_base_session_state
 
-st.set_page_config(page_title="Projekt típusok – ÉpítAI", layout="wide")
+st.set_page_config(page_title="Projekt típusok – Pontum", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)

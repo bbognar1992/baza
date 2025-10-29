@@ -1,5 +1,5 @@
 """
-User model for ÉpítAI Construction Management System
+User model for Pontum Construction Management System
 """
 
 from sqlalchemy import Column, Integer, String, Date, DateTime, CheckConstraint

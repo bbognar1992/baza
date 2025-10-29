@@ -1,6 +1,6 @@
-# ÉpítAI Construction Management System - SQLAlchemy Models
+# Pontum Construction Management System - SQLAlchemy Models
 
-This directory contains SQLAlchemy models for the ÉpítAI Construction Management System database.
+This directory contains SQLAlchemy models for the Pontum Construction Management System database.
 
 ## 📁 File Structure
 

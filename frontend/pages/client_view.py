@@ -5,7 +5,7 @@ import plotly.express as px
 from default_data import get_default_phases, ensure_base_session_state
 from components.sidebar import render_sidebar_navigation, handle_user_not_logged_in
 
-st.set_page_config(page_title="Ügyfél Nézet – ÉpítAI", layout="wide")
+st.set_page_config(page_title="Ügyfél Nézet – Pontum", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)
@@ -72,7 +72,7 @@ ensure_base_session_state(st)
 # Client view header
 st.markdown("""
 <div class="client-header">
-    <h1>🏗️ ÉpítAI - Projekt Áttekintés</h1>
+    <h1>🏗️ Pontum - Projekt Áttekintés</h1>
     <p>Ügyfél nézet - Projekt állapot és haladás</p>
 </div>
 """, unsafe_allow_html=True)

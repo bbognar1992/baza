@@ -1,5 +1,5 @@
 """
-Project models for ÉpítAI Construction Management System
+Project models for Pontum Construction Management System
 """
 
 from sqlalchemy import Column, Integer, String, Text, Date, Numeric, ForeignKey, CheckConstraint, UniqueConstraint

@@ -1,6 +1,6 @@
-# ÉpítAI Construction Management API
+# Pontum Construction Management API
 
-FastAPI backend server for the ÉpítAI Construction Management System.
+FastAPI backend server for the Pontum Construction Management System.
 
 ## Features
 

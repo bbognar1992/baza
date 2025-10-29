@@ -10,7 +10,7 @@ class Settings:
     
     # API Settings
     API_V1_STR: str = "/api/v1"
-    PROJECT_NAME: str = "ÉpítAI Construction Management API"
+    PROJECT_NAME: str = "Pontum Construction Management API"
     VERSION: str = "1.0.0"
     
     # Database

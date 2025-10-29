@@ -1,5 +1,5 @@
 """
-Base SQLAlchemy configuration and utilities for ÉpítAI Construction Management System
+Base SQLAlchemy configuration and utilities for Pontum Construction Management System
 """
 
 from sqlalchemy import create_engine, MetaData, Column, Integer, String, Text, DateTime, Boolean, Numeric, Date, ForeignKey

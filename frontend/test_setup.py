@@ -87,7 +87,7 @@ def test_database_connection():
 
 def main():
     """Run all tests"""
-    print("🏗️ ÉpítAI Frontend Setup Test")
+    print("🏗️ Pontum Frontend Setup Test")
     print("=" * 50)
     
     tests = [

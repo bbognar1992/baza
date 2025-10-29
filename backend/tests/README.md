@@ -1,6 +1,6 @@
-# ÉpítAI Construction Management System - Test Suite
+# Pontum Construction Management System - Test Suite
 
-This directory contains comprehensive tests for the ÉpítAI Construction Management System backend API.
+This directory contains comprehensive tests for the Pontum Construction Management System backend API.
 
 ## Test Structure
 

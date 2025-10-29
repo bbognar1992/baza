@@ -3,7 +3,7 @@ from default_data import ensure_base_session_state
 
 # Configure page
 st.set_page_config(
-    page_title="ÉpítAI - Kijelentkezés",
+    page_title="Pontum - Kijelentkezés",
     page_icon="👋",
     layout="wide",
     initial_sidebar_state="collapsed"

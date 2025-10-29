@@ -1,6 +1,6 @@
-# ÉpítAI Backend Setup Guide
+# Pontum Backend Setup Guide
 
-This guide will help you set up and run the ÉpítAI Construction Management System backend API.
+This guide will help you set up and run the Pontum Construction Management System backend API.
 
 ## Prerequisites
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test runner script for ÉpítAI Construction Management System
+Test runner script for Pontum Construction Management System
 """
 
 import sys
@@ -37,7 +37,7 @@ def discover_simple_tests():
 
 def run_tests(test_pattern=None, verbosity=2, failfast=False, simple_only=False):
     """Run tests with specified options"""
-    print("🧪 Running ÉpítAI Construction Management System Tests")
+    print("🧪 Running Pontum Construction Management System Tests")
     print("=" * 60)
     
     # Discover tests
@@ -134,7 +134,7 @@ def run_specific_test(test_module, test_class=None, test_method=None):
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(description="Run tests for ÉpítAI Construction Management System")
+    parser = argparse.ArgumentParser(description="Run tests for Pontum Construction Management System")
     parser.add_argument(
         "--pattern", "-p",
         help="Run tests matching pattern (e.g., 'users' for test_users.py)"

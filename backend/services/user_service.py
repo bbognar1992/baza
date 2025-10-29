@@ -1,5 +1,5 @@
 """
-User service for ÉpítAI Construction Management System
+User service for Pontum Construction Management System
 """
 
 from typing import List, Optional, Dict, Any

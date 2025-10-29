@@ -4,7 +4,7 @@ from components.sidebar import render_sidebar_navigation, handle_user_not_logged
 from database import get_db_session
 from models import Project, ProjectType, Resource
 
-st.set_page_config(page_title="Projects – ÉpítAI", layout="wide")
+st.set_page_config(page_title="Projects – Pontum", layout="wide")
 
 # Initialize session state
 ensure_base_session_state(st)

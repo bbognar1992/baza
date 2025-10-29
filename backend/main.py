@@ -1,5 +1,5 @@
 """
-FastAPI Backend for ÉpítAI Construction Management System
+FastAPI Backend for Pontum Construction Management System
 """
 
 from fastapi import FastAPI, HTTPException
@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI application
 app = FastAPI(
-    title="ÉpítAI Construction Management API",
+    title="Pontum Construction Management API",
     description="Backend API for construction project management system",
     version="1.0.0",
     docs_url="/docs",
@@ -49,7 +49,7 @@ app.include_router(api_router, prefix="/api/v1")
 @app.get("/")
 async def root():
     """Root endpoint"""
-    return {"message": "ÉpítAI Construction Management API", "version": "1.0.0"}
+    return {"message": "Pontum API", "version": "1.0.0"}
 
 
 @app.get("/health")

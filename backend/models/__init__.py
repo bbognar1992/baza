@@ -1,4 +1,4 @@
-# ÉpítAI Construction Management System - SQLAlchemy Models
+# Pontum Construction Management System - SQLAlchemy Models
 # This module contains all database models for the construction management system
 
 from .base import Base, db

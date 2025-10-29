@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ÉpítAI Construction Management System - Backend Run Script
+# Pontum Construction Management System - Backend Run Script
 # This script provides various options to run the backend API
 
 set -e
@@ -27,7 +27,7 @@ print_error() {
 
 print_header() {
     echo -e "${BLUE}================================${NC}"
-    echo -e "${BLUE}  ÉpítAI Backend Management${NC}"
+    echo -e "${BLUE}  Pontum Backend Management${NC}"
     echo -e "${BLUE}================================${NC}"
 }
 

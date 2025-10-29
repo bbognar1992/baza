@@ -1,5 +1,5 @@
 """
-Task model for ÉpítAI Construction Management System
+Task model for Pontum Construction Management System
 """
 
 from sqlalchemy import Column, Integer, String, Text, ForeignKey

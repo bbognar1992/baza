@@ -1,5 +1,5 @@
 """
-Weather Data model for ÉpítAI Construction Management System
+Weather Data model for Pontum Construction Management System
 """
 
 from sqlalchemy import Column, Integer, String, Date, Numeric, Boolean, UniqueConstraint

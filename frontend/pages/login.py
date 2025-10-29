@@ -5,7 +5,7 @@ from models.user import User
 
 # Configure page
 st.set_page_config(
-    page_title="ÉpítAI - Bejelentkezés",
+    page_title="Pontum - Bejelentkezés",
     page_icon="🔐",
     layout="wide"
 )

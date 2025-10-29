@@ -1,6 +1,6 @@
-# ÉpítAI Construction Management - Frontend
+# Pontum Construction Management - Frontend
 
-Streamlit-based frontend application for the ÉpítAI Construction Management System.
+Streamlit-based frontend application for the Pontum Construction Management System.
 
 ## 🏗️ Project Structure
 
@@ -242,4 +242,4 @@ docker run -p 8501:8501 epitai-frontend
 
 ## 📄 License
 
-This project is part of the ÉpítAI Construction Management System.
+This project is part of the Pontum Construction Management System.

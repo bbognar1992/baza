@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to run the Streamlit frontend application
 
-echo "Starting ÉpítAI Construction Management Frontend..."
+echo "Starting Pontum Construction Management Frontend..."
 echo "Activating virtual environment..."
 
 # Activate virtual environment

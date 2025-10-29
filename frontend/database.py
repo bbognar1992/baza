@@ -1,5 +1,5 @@
 """
-Database configuration and utilities for ÉpítAI Construction Management System
+Database configuration and utilities for Pontum Construction Management System
 """
 
 import os

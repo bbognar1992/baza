@@ -1,3 +1,3 @@
 """
-Test package for ÉpítAI Construction Management System
+Test package for Pontum Construction Management System
 """

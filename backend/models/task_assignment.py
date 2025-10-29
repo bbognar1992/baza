@@ -1,5 +1,5 @@
 """
-Task Assignment model for ÉpítAI Construction Management System
+Task Assignment model for Pontum Construction Management System
 """
 
 from sqlalchemy import Column, Integer, String, Date, Numeric, Text, ForeignKey, CheckConstraint, UniqueConstraint
